@@ -6,14 +6,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.palconnect.services.PalApiService
-import com.example.palconnect.services.PalRetroService
 import kotlinx.coroutines.launch
 
 class MainViewModel(
     private val palApiService: PalApiService
 ): ViewModel() {
 
-    private var _ip by mutableStateOf("192.168.0.201")
+    private var _ip by mutableStateOf("192.168.0.201:8212")
     val ip: String get() = _ip
 
     private var _password by mutableStateOf("doob")
@@ -43,6 +42,7 @@ class MainViewModel(
     fun submitted() {
         if(!_canSubmit) return
 
+        palApiService.setServerInfo(_ip, _password)
         getServerInfo()
     }
 
@@ -50,11 +50,11 @@ class MainViewModel(
         viewModelScope.launch {
             try {
                 _isLoadingConfig = true
-                palApiService.buildRetroService(_ip)
-                val result = palApiService.getPhotos()
+//                palApiService.buildRetroService(_ip)
+                val result = palApiService.getServerInfo()
                 _result = result
             } catch (e: Exception){
-                println(e)
+
             }
             _isLoadingConfig = false
         }
