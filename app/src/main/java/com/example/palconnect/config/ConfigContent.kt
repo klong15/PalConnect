@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,44 +40,51 @@ fun ConfigContent(
         }
     ),
 ) {
-    Column (
+    Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = modifier.fillMaxSize().padding(horizontal = 64.dp)
-    ){
-        Text(
-            text = "Enter Server Info",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(vertical = 16.dp)
-        )
+    ) {
+        if(viewModel.isLoadingConfig) {
+            CircularProgressIndicator(
+                modifier = Modifier.width(64.dp),
+            )
+        } else {
+            Text(
+                text = "Enter Server Info",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(vertical = 16.dp)
+            )
 
-        val focusRequester = remember { FocusRequester() }
-        IpTextField(
-            text = viewModel.ip,
-            onTextChange = { text ->
-                viewModel.ipTextChanged(text)
-            },
-            onSubmit = {
-                focusRequester.requestFocus()
+            val focusRequester = remember { FocusRequester() }
+            IpTextField(
+                text = viewModel.ip,
+                onTextChange = { text ->
+                    viewModel.ipTextChanged(text)
+                },
+                onSubmit = {
+                    focusRequester.requestFocus()
+                }
+            )
+            Spacer(Modifier.height(4.dp))
+            PasswordTextField(
+                text = viewModel.password,
+                onTextChange = { text ->
+                    viewModel.passwordTextChanged(text)
+                },
+                onSubmit = {
+                    viewModel.submitted()
+                },
+                modifier = Modifier.focusRequester(focusRequester)
+            )
+            ElevatedButton(
+                enabled = viewModel.canSubmit,
+                onClick = { viewModel.submitted() },
+                modifier = Modifier.padding(vertical = 16.dp)
+            ) {
+                Text("Submit")
             }
-        )
-        Spacer(Modifier.height(4.dp))
-        PasswordTextField(
-            text = viewModel.password,
-            onTextChange = { text ->
-                viewModel.passwordTextChanged(text)
-            },
-            onSubmit = {
-                viewModel.submitted()
-            },
-            modifier = Modifier.focusRequester(focusRequester)
-        )
-        ElevatedButton(
-            enabled = viewModel.canSubmit,
-            onClick = { viewModel.submitted() },
-            modifier = Modifier.padding(vertical = 16.dp)
-        ) {
-            Text("Submit")
+            Text(text = viewModel.result)
         }
     }
 }

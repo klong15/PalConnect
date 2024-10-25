@@ -2,6 +2,7 @@ package com.example.palconnect
 
 import android.app.Application
 import com.example.palconnect.services.PalApiModule
+import com.example.palconnect.services.PalApiService
 
 class PalApp: Application() {
 
