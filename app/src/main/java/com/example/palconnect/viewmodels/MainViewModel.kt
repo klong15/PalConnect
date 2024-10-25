@@ -31,6 +31,8 @@ class MainViewModel: ViewModel() {
     }
 
     fun submitted() {
+        if(!_canSubmit) return
+
         println("IP Address: ${_ip}\nPassword: ${_password}")
     }
 }
