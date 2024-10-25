@@ -24,13 +24,19 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.palconnect.PalApp
 import com.example.palconnect.ui.theme.PalConnectTheme
 import com.example.palconnect.viewmodels.MainViewModel
+import com.example.palconnect.viewmodels.viewModelFactory
 
 @Composable
 fun ConfigContent(
     modifier: Modifier = Modifier,
-    viewModel: MainViewModel = viewModel(),
+    viewModel: MainViewModel = viewModel(
+        factory = viewModelFactory {
+            MainViewModel(PalApp.apiModule.apiService)
+        }
+    ),
 ) {
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
