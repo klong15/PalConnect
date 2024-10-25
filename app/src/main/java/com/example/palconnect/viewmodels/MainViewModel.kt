@@ -4,12 +4,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import com.example.palconnect.services.ApiService
 import com.example.palconnect.services.PalApiService
 
 class MainViewModel(
-    private val palApiService: ApiService
+    private val palApiService: PalApiService
 ): ViewModel() {
 
     private var _ip by mutableStateOf("")

@@ -1,16 +1,16 @@
 package com.example.palconnect
 
 import android.app.Application
-import com.example.palconnect.services.ApiModule
+import com.example.palconnect.services.PalApiModule
 
 class PalApp: Application() {
 
     companion object {
-        lateinit var apiModule: ApiModule
+        lateinit var palApiModule: PalApiModule
     }
 
     override fun onCreate() {
         super.onCreate()
-        apiModule = ApiModule(this)
+        palApiModule = PalApiModule(this)
     }
 }

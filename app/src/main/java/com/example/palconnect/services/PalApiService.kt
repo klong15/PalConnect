@@ -11,27 +11,27 @@ private val retrofit = Retrofit.Builder()
     .baseUrl(BASE_URL)
     .build()
 
-interface ApiService {
+interface PalApiService {
     @GET("api/info")
     fun getServerInfo() : String
 }
 
-class PalApiService: ApiService {
+class PalPalApiServiceImpl: PalApiService {
 
     override fun getServerInfo() : String {
         return ""
     }
 }
 
-class ApiModule(
+class PalApiModule(
     private val appContext: Context
 ) {
-    val apiService: ApiService by lazy {
+    val palApiService: PalApiService by lazy {
         Retrofit.Builder()
             .addConverterFactory(ScalarsConverterFactory.create())
             .baseUrl(BASE_URL)
             .build()
-            .create(ApiService::class.java)
+            .create(PalApiService::class.java)
     }
 }
 
