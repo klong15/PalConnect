@@ -34,7 +34,7 @@ fun ConfigContent(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel = viewModel(
         factory = viewModelFactory {
-            MainViewModel(PalApp.apiModule.palApiService)
+            MainViewModel(PalApp.palApiModule.palApiService)
         }
     ),
 ) {
