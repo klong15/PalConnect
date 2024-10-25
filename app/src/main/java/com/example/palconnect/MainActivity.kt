@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.example.palconnect.ui.theme.PalConnectTheme
-import com.example.palconnect.ui.theme.config.ConfigContent
+import com.example.palconnect.config.ConfigContent
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

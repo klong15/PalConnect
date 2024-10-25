@@ -1,4 +1,4 @@
-package com.example.palconnect.ui.theme.config
+package com.example.palconnect.config
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
