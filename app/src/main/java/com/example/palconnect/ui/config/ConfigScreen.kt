@@ -65,6 +65,7 @@ fun ConfigScreen(
             viewModel.submitted()
         },
         onButtonSubmit = { viewModel.submitted() },
+        passwordFocusRequester = focusRequester,
     )
 }
 
