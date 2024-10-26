@@ -1,9 +1,9 @@
 package com.example.palconnect
 
+import androidx.compose.ui.Modifier
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.serialization.Serializable
-import androidx.compose.ui.Modifier
 
 sealed interface Route {
     @Serializable
@@ -13,7 +13,7 @@ sealed interface Route {
     data object Overview : Route
 }
 
-object NavigationManager {
+class NavigationManager {
     private val _route = MutableSharedFlow<Route>()
     val route: SharedFlow<Route> = _route
 

@@ -10,16 +10,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.rememberNavController
-import com.example.palconnect.ui.theme.PalConnectTheme
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.palconnect.ui.config.ConfigScreen
 import com.example.palconnect.ui.overview.OverviewScreen
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.serialization.Serializable
+import com.example.palconnect.ui.theme.PalConnectTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +33,7 @@ fun NavigatorLaunchedEffect(
     navController: NavHostController,
 ) {
     LaunchedEffect("NavigationEvents") {
-        NavigationManager.route.collect { screen ->
+        PalConnectApp.palModule.palNavigationManager.route.collect { screen ->
             navController.navigate(screen)
         }
     }

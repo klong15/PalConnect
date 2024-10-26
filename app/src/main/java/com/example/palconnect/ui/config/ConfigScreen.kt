@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,19 +29,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.palconnect.PalConnectApp
+import com.example.palconnect.conditional
 import com.example.palconnect.ui.theme.PalConnectTheme
+import com.example.palconnect.viewmodels.ConfigUiState
 import com.example.palconnect.viewmodels.MainViewModel
 import com.example.palconnect.viewmodels.viewModelFactory
-import androidx.compose.runtime.getValue
-import com.example.palconnect.conditional
-import com.example.palconnect.viewmodels.ConfigUiState
 
 @Composable
 fun ConfigScreen(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel = viewModel(
         factory = viewModelFactory {
-            MainViewModel(PalConnectApp.palApiModule.palApiService)
+            MainViewModel(PalConnectApp.palModule.palApiService, PalConnectApp.palModule.palNavigationManager)
         }
     ),
 ) {

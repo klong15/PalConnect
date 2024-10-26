@@ -26,7 +26,8 @@ data class ConfigUiState(
 )
 
 class MainViewModel(
-    private val palApiService: PalApiService
+    private val palApiService: PalApiService,
+    private val navigationManager: NavigationManager
 ): ViewModel() {
 
 //    var model: MutableLiveData<ServerInfoModel> = MutableLiveData<ServerInfoModel>(ServerInfoModel())
@@ -87,7 +88,7 @@ class MainViewModel(
                 }
             } else {
                 //Navigate to next page
-                NavigationManager.navigateToAsync(Route.Overview)
+                navigationManager.navigateToAsync(Route.Overview)
                 delay(1000)
                 setIsLoading(false)
 

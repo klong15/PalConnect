@@ -21,7 +21,7 @@ fun OverviewScreen(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel = viewModel(
         factory = viewModelFactory {
-            MainViewModel(PalConnectApp.palApiModule.palApiService)
+            MainViewModel(PalConnectApp.palModule.palApiService, PalConnectApp.palModule.palNavigationManager)
         }
     ),
 ) {
