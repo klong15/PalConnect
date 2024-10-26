@@ -39,6 +39,29 @@ class PalApiService {
         return makeRequest("/v1/api/info")
     }
 
+    suspend fun getServerMetrics(error: suspend (HttpResponse) -> Unit = {},
+                              exception: suspend (Exception) -> Unit = { e -> },
+                              success: suspend (HttpResponse) -> Unit,) {
+        try {
+            val response = getServerMetrics()
+
+            if (response.status == HttpStatusCode.OK) {
+                println("Metrics success!")
+                success(response)
+            } else {
+                println("Metrics error!")
+                error(response)
+            }
+        } catch (e: Exception) {
+            println("Metrics exception!")
+            exception(e)
+        }
+    }
+
+    suspend fun getServerMetrics(): HttpResponse {
+        return makeRequest("/v1/api/metrics")
+    }
+
     private suspend fun makeRequest(endpoint: String): HttpResponse {
         val request: HttpResponse = _client.request("http://${_ip}${endpoint}") {
             method = HttpMethod.Get

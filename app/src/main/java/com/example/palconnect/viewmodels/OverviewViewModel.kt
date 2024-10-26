@@ -5,10 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.palconnect.NavigationManager
 import com.example.palconnect.Route
 import com.example.palconnect.models.ServerInfoModel
+import com.example.palconnect.models.ServerMetricsModel
 import com.example.palconnect.services.PalApiService
 import io.ktor.client.call.body
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,10 +17,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
-private const val PLAYER_UPDATE_CADENCE: Long = 5000L
+private const val METRICS_UPDATE_CADENCE: Long = 5000L
 
 data class OverviewUiState(
     var infoModel: ServerInfoModel = ServerInfoModel(),
+    var metricsModel: ServerMetricsModel = ServerMetricsModel(),
     var errorMessage: String = ""
 )
 
@@ -59,8 +60,15 @@ class OverviewViewModel(
             updatePlayers = true
             viewModelScope.launch {
                 while (updatePlayers) {
-                    println("Fetching Player Info!")
-                    delay(PLAYER_UPDATE_CADENCE)
+                    println("Fetching Metrics!")
+                    palApiService.getServerMetrics() { response ->
+                        _uiState.update { currentState ->
+                            currentState.copy(
+                                metricsModel = Json.decodeFromString(response.body<String>())
+                            )
+                        }
+                    }
+                    delay(METRICS_UPDATE_CADENCE)
                 }
             }
         }

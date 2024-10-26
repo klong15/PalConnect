@@ -80,6 +80,10 @@ fun OverviewContent(
             text = uiState.infoModel.description,
             style = MaterialTheme.typography.titleLarge,
         )
+        Text(
+            text = "Frame Time: ${uiState.metricsModel.serverframetime}",
+            style = MaterialTheme.typography.titleLarge,
+        )
     }
 }
 
