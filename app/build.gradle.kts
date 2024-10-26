@@ -65,4 +65,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.6")
     implementation("androidx.compose.runtime:runtime-livedata:1.7.4")
+
+    implementation("androidx.navigation:navigation-compose:2.8.3")
 }

@@ -7,10 +7,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.palconnect.NavigationManager
+import com.example.palconnect.Route
 import com.example.palconnect.models.ServerInfoModel
 import com.example.palconnect.services.PalApiService
 import io.ktor.client.call.body
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,7 +33,7 @@ data class ConfigUiState(
 class MainViewModel(
     private val palApiService: PalApiService
 ): ViewModel() {
-    
+
 //    var model: MutableLiveData<ServerInfoModel> = MutableLiveData<ServerInfoModel>(ServerInfoModel())
 
     private val _configUiState = MutableStateFlow(ConfigUiState())
@@ -80,12 +83,22 @@ class MainViewModel(
             } catch (e: Exception){
                 hasError = true
             }
-            setIsLoading(false)
 
-            _configUiState.update { currentState ->
-                currentState.copy(
-                    message = if(hasError) "ERROR" else _configUiState.value.infoModel.description)
+            if(hasError) {
+                _configUiState.update { currentState ->
+                    currentState.copy(
+                        message = if (hasError) "ERROR" else _configUiState.value.infoModel.description
+                    )
+                }
+            } else {
+                //Navigate to next page
+                NavigationManager.navigateToAsync(Route.Overview)
+                delay(1000)
+                setIsLoading(false)
+
             }
+
+            setIsLoading(false)
         }
     }
 
