@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +31,8 @@ import com.example.palconnect.PalApp
 import com.example.palconnect.ui.theme.PalConnectTheme
 import com.example.palconnect.viewmodels.MainViewModel
 import com.example.palconnect.viewmodels.viewModelFactory
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun ConfigContent(
@@ -40,6 +43,7 @@ fun ConfigContent(
         }
     ),
 ) {
+    val modelState by viewModel.model.observeAsState()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -84,7 +88,8 @@ fun ConfigContent(
             ) {
                 Text("Submit")
             }
-            Text(text = viewModel.result)
+            Text(text = modelState?.servername ?: "")
+            Text(text = modelState?.description ?: "")
         }
     }
 }

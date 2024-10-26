@@ -38,11 +38,11 @@ class PalApiService {
     private var _ip: String = ""
     private var _password: String = ""
 
-    suspend fun getServerInfo(): String {
+    suspend fun getServerInfo(): HttpResponse {
         return makeRequest("/v1/api/info")
     }
 
-    private suspend fun makeRequest(endpoint: String): String {
+    private suspend fun makeRequest(endpoint: String): HttpResponse {
         val request: HttpResponse = _client.request("http://${_ip}${endpoint}") {
             method = HttpMethod.Get
             headers {
@@ -51,7 +51,7 @@ class PalApiService {
             }
         }
 
-        return request.body<String>()
+        return request
     }
 
     fun setServerInfo(ip: String, password: String) {
