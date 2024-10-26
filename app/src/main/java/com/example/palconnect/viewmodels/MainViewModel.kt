@@ -1,10 +1,5 @@
 package com.example.palconnect.viewmodels
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.palconnect.NavigationManager
@@ -23,8 +18,8 @@ import kotlinx.serialization.json.Json
 
 data class ConfigUiState(
     var ipField: String = "192.168.0.201:8212",
-    var passworldField: String = "doob",
-    var canSubmit: Boolean = false,
+    var passwordField: String = "doob",
+    var canSubmit: Boolean = ipField.isNotEmpty() && passwordField.isNotEmpty(),
     var isLoading: Boolean = false,
     var infoModel: ServerInfoModel = ServerInfoModel(),
     var message: String = ""
@@ -43,7 +38,7 @@ class MainViewModel(
         _configUiState.update { currentState ->
             currentState.copy(
                 ipField = newIp,
-                canSubmit = newIp.isNotEmpty() && currentState.passworldField.isNotEmpty()
+                canSubmit = newIp.isNotEmpty() && currentState.passwordField.isNotEmpty()
             )
         }
     }
@@ -51,7 +46,7 @@ class MainViewModel(
     fun passwordTextChanged(newPassword: String) {
         _configUiState.update { currentState ->
             currentState.copy(
-                passworldField = newPassword,
+                passwordField = newPassword,
                 canSubmit = currentState.ipField.isNotEmpty() && newPassword.isNotEmpty()
             )
         }
@@ -60,7 +55,7 @@ class MainViewModel(
     fun submitted() {
         if(!_configUiState.value.canSubmit) return
 //
-        palApiService.setServerInfo(_configUiState.value.ipField, _configUiState.value.passworldField)
+        palApiService.setServerInfo(_configUiState.value.ipField, _configUiState.value.passwordField)
         getServerInfo()
     }
 

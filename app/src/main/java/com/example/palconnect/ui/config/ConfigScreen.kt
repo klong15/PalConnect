@@ -33,7 +33,6 @@ import com.example.palconnect.viewmodels.MainViewModel
 import com.example.palconnect.viewmodels.viewModelFactory
 import androidx.compose.runtime.getValue
 import com.example.palconnect.conditional
-import com.example.palconnect.ui.overview.OverviewContent
 import com.example.palconnect.viewmodels.ConfigUiState
 
 @Composable
@@ -103,7 +102,7 @@ fun ConfigContent(
             )
             Spacer(Modifier.height(4.dp))
             PasswordTextField(
-                text = configUiState.passworldField,
+                text = configUiState.passwordField,
                 onTextChange = onPasswordTextChange,
                 onSubmit = onPasswordSubmit,
                 modifier = Modifier.conditional(passwordFocusRequester != null) {
