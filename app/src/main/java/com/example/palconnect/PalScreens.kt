@@ -11,6 +11,9 @@ sealed interface Route {
 
     @Serializable
     data object Overview : Route
+
+    @Serializable
+    data object Players : Route
 }
 
 class NavigationManager {
