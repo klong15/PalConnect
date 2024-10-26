@@ -32,15 +32,15 @@ import com.example.palconnect.PalConnectApp
 import com.example.palconnect.conditional
 import com.example.palconnect.ui.theme.PalConnectTheme
 import com.example.palconnect.viewmodels.ConfigUiState
-import com.example.palconnect.viewmodels.MainViewModel
+import com.example.palconnect.viewmodels.ConfigViewModel
 import com.example.palconnect.viewmodels.viewModelFactory
 
 @Composable
 fun ConfigScreen(
     modifier: Modifier = Modifier,
-    viewModel: MainViewModel = viewModel(
+    viewModel: ConfigViewModel = viewModel(
         factory = viewModelFactory {
-            MainViewModel(PalConnectApp.palModule.palApiService, PalConnectApp.palModule.palNavigationManager)
+            ConfigViewModel(PalConnectApp.palModule.palApiService, PalConnectApp.palModule.palNavigationManager)
         }
     ),
 ) {

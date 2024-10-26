@@ -25,7 +25,7 @@ data class ConfigUiState(
     var message: String = ""
 )
 
-class MainViewModel(
+class ConfigViewModel(
     private val palApiService: PalApiService,
     private val navigationManager: NavigationManager
 ): ViewModel() {

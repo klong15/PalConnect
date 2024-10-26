@@ -11,9 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.palconnect.models.ServerInfoModel
 import com.example.palconnect.ui.config.ConfigScreen
 import com.example.palconnect.ui.overview.OverviewScreen
 import com.example.palconnect.ui.theme.PalConnectTheme

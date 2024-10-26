@@ -1,7 +1,10 @@
 package com.example.palconnect.ui.overview
 
+import android.R
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -11,37 +14,44 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.palconnect.PalConnectApp
+import com.example.palconnect.models.ServerInfoModel
 import com.example.palconnect.ui.theme.PalConnectTheme
 import com.example.palconnect.viewmodels.ConfigUiState
-import com.example.palconnect.viewmodels.MainViewModel
+import com.example.palconnect.viewmodels.ConfigViewModel
+import com.example.palconnect.viewmodels.OverviewUiState
+import com.example.palconnect.viewmodels.OverviewViewModel
 import com.example.palconnect.viewmodels.viewModelFactory
 
 @Composable
 fun OverviewScreen(
     modifier: Modifier = Modifier,
-    viewModel: MainViewModel = viewModel(
+    viewModel: OverviewViewModel = viewModel(
         factory = viewModelFactory {
-            MainViewModel(PalConnectApp.palModule.palApiService, PalConnectApp.palModule.palNavigationManager)
+            OverviewViewModel(PalConnectApp.palModule.palApiService, PalConnectApp.palModule.palNavigationManager)
         }
     ),
 ) {
-    val configUiState by viewModel.configUiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     OverviewContent(
-        configUiState = configUiState
+        uiState = uiState,
     )
 }
 
 @Composable
 fun OverviewContent(
     modifier: Modifier = Modifier,
-    configUiState: ConfigUiState
+    uiState: OverviewUiState
 ) {
-    Box (
+    Column (
         modifier = Modifier.fillMaxSize()
     ){
         Text(
-            text = "OverviewScreen",
-            modifier = Modifier.align(Alignment.Center)
+            text = uiState.infoModel.servername,
+            style = MaterialTheme.typography.titleLarge,
+        )
+        Text(
+            text = uiState.infoModel.description,
+            style = MaterialTheme.typography.titleLarge,
         )
     }
 }
@@ -50,6 +60,11 @@ fun OverviewContent(
 @Composable
 fun OverviewPreview() {
     PalConnectTheme {
-        OverviewContent(configUiState = ConfigUiState())
+        OverviewContent(uiState = OverviewUiState(
+            infoModel = ServerInfoModel(
+                servername = "Klong's Server",
+                description = "We once sailed across the jade ocean. Only to be met by an orange whale with 2 thumbs."
+            )
+        ))
     }
 }

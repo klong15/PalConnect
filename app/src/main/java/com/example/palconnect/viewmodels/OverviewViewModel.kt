@@ -1,0 +1,67 @@
+package com.example.palconnect.viewmodels
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.palconnect.NavigationManager
+import com.example.palconnect.models.ServerInfoModel
+import com.example.palconnect.services.PalApiService
+import io.ktor.client.call.body
+import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+
+data class OverviewUiState(
+    var infoModel: ServerInfoModel = ServerInfoModel(),
+    var errorMessage: String = ""
+)
+
+class OverviewViewModel(
+    private val palApiService: PalApiService,
+    private val navigationManager: NavigationManager
+): ViewModel() {
+
+    private val _uiState = MutableStateFlow(OverviewUiState())
+    val uiState: StateFlow<OverviewUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            palApiService.getServerInfo() { response ->
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        infoModel = Json.decodeFromString(response.body<String>())
+                    )
+                }
+            }
+        }
+    }
+
+    private suspend fun updateServerInfo() {
+        try {
+            val response = palApiService.getServerInfo()
+
+            if (response.status == HttpStatusCode.OK) {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        infoModel = Json.decodeFromString(response.body<String>())
+                    )
+                }
+            } else {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        errorMessage = "Unauthorized!"
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            _uiState.update { currentState ->
+                currentState.copy(
+                    errorMessage = "Exception Occurred!"
+                )
+            }
+        }
+    }
+}
