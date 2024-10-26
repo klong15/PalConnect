@@ -32,6 +32,9 @@ import com.example.palconnect.ui.theme.PalConnectTheme
 import com.example.palconnect.viewmodels.MainViewModel
 import com.example.palconnect.viewmodels.viewModelFactory
 import androidx.compose.runtime.getValue
+import com.example.palconnect.conditional
+import com.example.palconnect.ui.overview.OverviewContent
+import com.example.palconnect.viewmodels.ConfigUiState
 
 @Composable
 fun ConfigScreen(
@@ -44,7 +47,38 @@ fun ConfigScreen(
 ) {
 //    val modelState by viewModel.model.observeAsState()
     val configUiState by viewModel.configUiState.collectAsState()
+    val focusRequester = remember { FocusRequester() }
 
+    ConfigContent(
+        modifier = modifier,
+        configUiState = configUiState,
+        onIpTextChange = { text ->
+            viewModel.ipTextChanged(text)
+        },
+        onPasswordTextChange = { text ->
+            viewModel.passwordTextChanged(text)
+        },
+        onIpSubmit = {
+            focusRequester.requestFocus()
+        },
+        onPasswordSubmit = {
+            viewModel.submitted()
+        },
+        onButtonSubmit = { viewModel.submitted() },
+    )
+}
+
+@Composable
+fun ConfigContent(
+    modifier: Modifier = Modifier,
+    configUiState: ConfigUiState,
+    onIpTextChange: (String) -> Unit = {},
+    onPasswordTextChange: (String) -> Unit = {},
+    onIpSubmit: () -> Unit = {},
+    onPasswordSubmit: () -> Unit = {},
+    onButtonSubmit: () -> Unit = {},
+    passwordFocusRequester: FocusRequester? = null
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -61,30 +95,23 @@ fun ConfigScreen(
                 modifier = Modifier.padding(vertical = 16.dp)
             )
 
-            val focusRequester = remember { FocusRequester() }
             IpTextField(
                 text = configUiState.ipField,
-                onTextChange = { text ->
-                    viewModel.ipTextChanged(text)
-                },
-                onSubmit = {
-                    focusRequester.requestFocus()
-                }
+                onTextChange = onIpTextChange,
+                onSubmit = onIpSubmit
             )
             Spacer(Modifier.height(4.dp))
             PasswordTextField(
                 text = configUiState.passworldField,
-                onTextChange = { text ->
-                    viewModel.passwordTextChanged(text)
-                },
-                onSubmit = {
-                    viewModel.submitted()
-                },
-                modifier = Modifier.focusRequester(focusRequester)
+                onTextChange = onPasswordTextChange,
+                onSubmit = onPasswordSubmit,
+                modifier = Modifier.conditional(passwordFocusRequester != null) {
+                    focusRequester(passwordFocusRequester!!)
+                }
             )
             ElevatedButton(
                 enabled = configUiState.canSubmit,
-                onClick = { viewModel.submitted() },
+                onClick = onButtonSubmit,
                 modifier = Modifier.padding(vertical = 16.dp)
             ) {
                 Text("Submit")
@@ -141,6 +168,6 @@ fun PasswordTextField(
 @Composable
 fun ConfigPreview() {
     PalConnectTheme {
-        ConfigScreen()
+        ConfigContent(configUiState = ConfigUiState())
     }
 }
