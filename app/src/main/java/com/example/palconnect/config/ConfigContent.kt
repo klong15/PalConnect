@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -43,13 +44,15 @@ fun ConfigContent(
         }
     ),
 ) {
-    val modelState by viewModel.model.observeAsState()
+//    val modelState by viewModel.model.observeAsState()
+    val configUiState by viewModel.configUiState.collectAsState()
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = modifier.fillMaxSize().padding(horizontal = 64.dp)
     ) {
-        if(viewModel.isLoadingConfig) {
+        if(configUiState.isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier.width(64.dp),
             )
@@ -62,7 +65,7 @@ fun ConfigContent(
 
             val focusRequester = remember { FocusRequester() }
             IpTextField(
-                text = viewModel.ip,
+                text = configUiState.ipField,
                 onTextChange = { text ->
                     viewModel.ipTextChanged(text)
                 },
@@ -72,7 +75,7 @@ fun ConfigContent(
             )
             Spacer(Modifier.height(4.dp))
             PasswordTextField(
-                text = viewModel.password,
+                text = configUiState.passworldField,
                 onTextChange = { text ->
                     viewModel.passwordTextChanged(text)
                 },
@@ -82,14 +85,14 @@ fun ConfigContent(
                 modifier = Modifier.focusRequester(focusRequester)
             )
             ElevatedButton(
-                enabled = viewModel.canSubmit,
+                enabled = configUiState.canSubmit,
                 onClick = { viewModel.submitted() },
                 modifier = Modifier.padding(vertical = 16.dp)
             ) {
                 Text("Submit")
             }
-            Text(text = modelState?.servername ?: "")
-            Text(text = modelState?.description ?: "")
+            Text(text = configUiState.infoModel.servername)
+            Text(text = configUiState.message)
         }
     }
 }

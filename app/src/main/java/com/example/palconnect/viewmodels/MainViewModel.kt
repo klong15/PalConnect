@@ -11,46 +11,53 @@ import com.example.palconnect.models.ServerInfoModel
 import com.example.palconnect.services.PalApiService
 import io.ktor.client.call.body
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+
+data class ConfigUiState(
+    var ipField: String = "192.168.0.201:8212",
+    var passworldField: String = "doob",
+    var canSubmit: Boolean = false,
+    var isLoading: Boolean = false,
+    var infoModel: ServerInfoModel = ServerInfoModel(),
+    var message: String = ""
+)
 
 class MainViewModel(
     private val palApiService: PalApiService
 ): ViewModel() {
+    
+//    var model: MutableLiveData<ServerInfoModel> = MutableLiveData<ServerInfoModel>(ServerInfoModel())
 
-    private var _ip by mutableStateOf("192.168.0.201:8212")
-    val ip: String get() = _ip
-
-    private var _password by mutableStateOf("doob")
-    val password: String get() = _password
-
-    private var _canSubmit by mutableStateOf(_ip.isNotEmpty() && _password.isNotEmpty())
-    val canSubmit: Boolean get() = _canSubmit
-
-    private var _result by mutableStateOf("Results shown here")
-    val result: String get() = _result
-
-    private var _isLoadingConfig by mutableStateOf(false)
-    val isLoadingConfig: Boolean get() = _isLoadingConfig
-
-    var model: MutableLiveData<ServerInfoModel> = MutableLiveData<ServerInfoModel>(ServerInfoModel())
+    private val _configUiState = MutableStateFlow(ConfigUiState())
+    val configUiState: StateFlow<ConfigUiState> = _configUiState.asStateFlow()
 
     fun ipTextChanged(newIp: String) {
-        _ip = newIp
-
-        _canSubmit = _ip.isNotEmpty() && _password.isNotEmpty()
+        _configUiState.update { currentState ->
+            currentState.copy(
+                ipField = newIp,
+                canSubmit = newIp.isNotEmpty() && currentState.passworldField.isNotEmpty()
+            )
+        }
     }
 
     fun passwordTextChanged(newPassword: String) {
-        _password = newPassword
-
-        _canSubmit = _ip.isNotEmpty() && _password.isNotEmpty()
+        _configUiState.update { currentState ->
+            currentState.copy(
+                passworldField = newPassword,
+                canSubmit = currentState.ipField.isNotEmpty() && newPassword.isNotEmpty()
+            )
+        }
     }
 
     fun submitted() {
-        if(!_canSubmit) return
-
-        palApiService.setServerInfo(_ip, _password)
+        if(!_configUiState.value.canSubmit) return
+//
+        palApiService.setServerInfo(_configUiState.value.ipField, _configUiState.value.passworldField)
         getServerInfo()
     }
 
@@ -58,19 +65,35 @@ class MainViewModel(
         viewModelScope.launch {
             var hasError: Boolean = false;
             try {
-                _isLoadingConfig = true
+                setIsLoading(true)
                 val result = palApiService.getServerInfo()
                 if(result.status == HttpStatusCode.OK) {
-                    model.postValue(Json.decodeFromString(result.body<String>()))
+
+                    _configUiState.update { currentState ->
+                        currentState.copy(
+                            infoModel = Json.decodeFromString(result.body<String>())
+                        )
+                    }
                 } else {
                     hasError = true;
                 }
             } catch (e: Exception){
                 hasError = true
             }
-            _isLoadingConfig = false
+            setIsLoading(false)
 
-            if(hasError) _result = "ERROR"
+            _configUiState.update { currentState ->
+                currentState.copy(
+                    message = if(hasError) "ERROR" else _configUiState.value.infoModel.description)
+            }
+        }
+    }
+
+    private fun setIsLoading(loading: Boolean) {
+        _configUiState.update { currentState ->
+            currentState.copy(
+                isLoading = loading,
+            )
         }
     }
 }
