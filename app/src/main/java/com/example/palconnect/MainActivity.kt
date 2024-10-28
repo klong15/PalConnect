@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.palconnect.ui.config.ConfigScreen
 import com.example.palconnect.ui.overview.OverviewScreen
@@ -74,11 +75,13 @@ fun PalApp(modifier: Modifier = Modifier) {
         val context = LocalContext.current
         val navController = rememberNavController()
         var topBarTitle by remember { mutableStateOf("") }
+        var showBackIcon by remember { mutableStateOf(true) }
 
         LaunchedEffect(navController) {
             navController.currentBackStackEntryFlow.collect { backStackEntry ->
                 // You can map the title based on the route using:
                 topBarTitle = getTitleByRoute(context, backStackEntry.destination.route)
+                showBackIcon = navController.previousBackStackEntry != null
             }
         }
 
@@ -93,13 +96,17 @@ fun PalApp(modifier: Modifier = Modifier) {
                     title = {
                         Text(text = topBarTitle)
                     },
-                    navigationIcon = {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Localized description"
-                            )
+                    navigationIcon = if (showBackIcon){
+                        {
+                            IconButton(onClick = { navController.popBackStack() }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Localized description"
+                                )
+                            }
                         }
+                    } else {
+                        { null }
                     },
                 )
             },
