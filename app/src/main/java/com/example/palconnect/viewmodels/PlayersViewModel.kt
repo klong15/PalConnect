@@ -13,6 +13,7 @@ import com.example.palconnect.models.PlayersModel
 import com.example.palconnect.services.PalApiService
 import io.ktor.client.call.body
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -55,7 +56,7 @@ class PlayersViewModel(
         var msg = R.string.error_load_players
     }
 
-    private fun refreshPlayers() {
+    fun refreshPlayers() {
         viewModelScope.launch {
 
             _uiState.update { currentState ->
@@ -64,6 +65,9 @@ class PlayersViewModel(
                     errorStrId = 0,
                 )
             }
+
+            // ARTIFICIAL DELAY: to show off loading UI
+            delay(1500)
 
             var players: PlayersModel? = null
             val response = palApiService.getPlayers() { response ->
