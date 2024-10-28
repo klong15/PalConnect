@@ -13,6 +13,7 @@ import com.example.palconnect.models.PlayersModel
 import com.example.palconnect.services.PalApiService
 import io.ktor.client.call.body
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -49,20 +50,22 @@ class PlayersViewModel(
     private val _uiState = MutableStateFlow(PlayersUiState())
     val uiState: StateFlow<PlayersUiState> = _uiState.asStateFlow()
 
+    var refreshJob: Job? = null
+
     fun onStart() {
         if(_uiState.value.playersModel.players.isEmpty()) {
-            refreshPlayers()
+            refreshJob = refreshPlayers()
         }
 
         var msg = R.string.error_load_players
     }
 
     fun onStop() {
-//        updateJob?.cancel()
+        refreshJob?.cancel()
     }
 
-    fun refreshPlayers() {
-        viewModelScope.launch {
+    fun refreshPlayers(): Job {
+        val job = viewModelScope.launch {
 
             _uiState.update { currentState ->
                 currentState.copy(
@@ -96,5 +99,7 @@ class PlayersViewModel(
                 )
             }
         }
+
+        return job
     }
 }
