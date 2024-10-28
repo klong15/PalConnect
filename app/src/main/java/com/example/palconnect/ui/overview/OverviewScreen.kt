@@ -1,5 +1,6 @@
 package com.example.palconnect.ui.overview
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,7 +22,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -35,24 +35,23 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.palconnect.PalConnectApp
 import com.example.palconnect.Route
 import com.example.palconnect.models.ServerInfoModel
 import com.example.palconnect.ui.theme.PalConnectTheme
 import com.example.palconnect.viewmodels.OverviewUiState
 import com.example.palconnect.viewmodels.OverviewViewModel
-import com.example.palconnect.viewmodels.viewModelFactory
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import androidx.activity.viewModels
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModelProvider
 
 @Composable
 fun OverviewScreen(
     modifier: Modifier = Modifier,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     viewModel: OverviewViewModel = viewModel(
-        factory = viewModelFactory {
-            OverviewViewModel(PalConnectApp.palModule.palApiService, PalConnectApp.palModule.palNavigationManager)
-        }
+        factory = OverviewViewModel.Factory
     ),
 ) {
     // Feed lifecycle events back into viewmodel
@@ -91,11 +90,10 @@ fun OverviewContent(
     uiState: OverviewUiState,
     announcementResponseMessage: SharedFlow<String>,
     makeAnnouncementClicked: (String) -> Unit = {},
-    saveWorldClicked: () -> Unit = {},
+    saveWorldClicked: (Context) -> Unit = {},
 ) {
     // Alert Dialog things
     var openDialog by rememberSaveable() { mutableStateOf(false) }
-
     Column (
         modifier = Modifier.fillMaxSize()
     ){
@@ -114,9 +112,10 @@ fun OverviewContent(
         ElevatedButton(onClick = { openDialog = true } ) {
             Text("Announce Message")
         }
-        ElevatedButton(onClick = saveWorldClicked ) {
-            Text("Save World")
-        }
+        SaveWorldButton(
+            enabled = uiState.saveWorldButtonEnable,
+            saveWorldClicked = saveWorldClicked
+        )
     }
 
     when {
@@ -128,6 +127,24 @@ fun OverviewContent(
                 announcementResponseMessage = announcementResponseMessage
             )
         }
+    }
+}
+
+@Composable
+fun SaveWorldButton(
+    modifier: Modifier = Modifier,
+    saveWorldClicked: (Context) -> Unit,
+    enabled: Boolean = true
+) {
+    var context = LocalContext.current
+
+    ElevatedButton(
+        onClick = {
+            saveWorldClicked(context)
+        },
+        enabled = enabled
+    ) {
+        Text("Save World")
     }
 }
 

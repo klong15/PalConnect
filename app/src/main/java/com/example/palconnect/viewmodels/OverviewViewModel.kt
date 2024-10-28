@@ -1,11 +1,13 @@
 package com.example.palconnect.viewmodels
 
-import android.app.Activity
+import android.content.Context
 import android.widget.Toast
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
 import com.example.palconnect.NavigationManager
+import com.example.palconnect.PalConnectApp
 import com.example.palconnect.Route
 import com.example.palconnect.models.ServerInfoModel
 import com.example.palconnect.models.ServerMetricsModel
@@ -21,6 +23,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import androidx.lifecycle.viewmodel.viewModelFactory
 
 private const val METRICS_UPDATE_CADENCE: Long = 5000L
 
@@ -29,12 +32,33 @@ data class OverviewUiState(
     var metricsModel: ServerMetricsModel = ServerMetricsModel(),
     var errorMessage: String = "",
     var awaitingAnnounceResponse: Boolean = false,
+    var saveWorldButtonEnable: Boolean = true,
+//    private val _saveWorldButtonFlow: MutableSharedFlow<Boolean> = MutableSharedFlow<Boolean>(),
+//    val saveWorldButtonFlow: SharedFlow<Boolean> = _saveWorldButtonFlow
 )
 
 class OverviewViewModel(
     private val palApiService: PalApiService,
     private val navigationManager: NavigationManager
 ): ViewModel() {
+
+    companion object {
+
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                OverviewViewModel(
+                    PalConnectApp.palModule.palApiService,
+                    PalConnectApp.palModule.palNavigationManager
+                )
+            }
+        }
+    }
+
+    var myvalue = 0
+
+    init {
+        myvalue = 1
+    }
 
     private var updateJob: Job? = null
 
@@ -117,11 +141,21 @@ class OverviewViewModel(
         }
     }
 
-    fun saveWorldClicked() {
+    fun saveWorldClicked(context: Context) {
         viewModelScope.launch {
+            _uiState.update { currentState ->
+                currentState.copy(
+                    saveWorldButtonEnable = false
+                )
+            }
             palApiService.saveWorld() {
-//                Toast.makeText(LocalContext.current as? Activity, "World save has been initiated")
+                Toast.makeText(context, "World save has been initiated", Toast.LENGTH_SHORT).show()
+            }
 
+            _uiState.update { currentState ->
+                currentState.copy(
+                    saveWorldButtonEnable = true
+                )
             }
         }
     }
