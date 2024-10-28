@@ -7,7 +7,6 @@ import io.ktor.client.request.headers
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 
@@ -108,7 +107,7 @@ class PalApiService {
     }
 
     fun setServerInfo(ip: String, password: String) {
-        _ip = ip;
+        _ip = ip
         _password = password
     }
 }
