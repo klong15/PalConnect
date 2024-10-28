@@ -57,6 +57,10 @@ class PlayersViewModel(
         var msg = R.string.error_load_players
     }
 
+    fun onStop() {
+//        updateJob?.cancel()
+    }
+
     fun refreshPlayers() {
         viewModelScope.launch {
 

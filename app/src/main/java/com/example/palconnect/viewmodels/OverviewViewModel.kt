@@ -62,46 +62,41 @@ class OverviewViewModel(
     private val _announcementResponseMessage = MutableSharedFlow<String>()
     val announcementResponseMessage: SharedFlow<String> = _announcementResponseMessage
 
-    fun onStart(route: Route?) {
+    fun onStart() {
         println("onStart")
 
-        if(route == Route.Overview) {
-            // Fetch initial data
 
-            if(_uiState.value.infoModel.servername.isEmpty()) {
-                println("Fetching Server Info!")
-                viewModelScope.launch {
-                    palApiService.getServerInfo() { response ->
-                        _uiState.update { currentState ->
-                            val infoModel: ServerInfoModel = Json.decodeFromString(response.body<String>())
-                            currentState.copy(
-                                pageTitle = infoModel.servername,
-                                infoModel = infoModel
-                            )
-                        }
+        if(_uiState.value.infoModel.servername.isEmpty()) {
+            println("Fetching Server Info!")
+            viewModelScope.launch {
+                palApiService.getServerInfo() { response ->
+                    _uiState.update { currentState ->
+                        val infoModel: ServerInfoModel = Json.decodeFromString(response.body<String>())
+                        currentState.copy(
+                            pageTitle = infoModel.servername,
+                            infoModel = infoModel
+                        )
                     }
                 }
             }
         }
 
-        if(route == Route.Overview || route == Route.Players) {
-            updateJob = viewModelScope.launch {
-                while (isActive) {
-                    println("Fetching Metrics!")
-                    palApiService.getServerMetrics() { response ->
-                        _uiState.update { currentState ->
-                            currentState.copy(
-                                metricsModel = Json.decodeFromString(response.body<String>())
-                            )
-                        }
+        updateJob = viewModelScope.launch {
+            while (isActive) {
+                println("Fetching Metrics!")
+                palApiService.getServerMetrics() { response ->
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            metricsModel = Json.decodeFromString(response.body<String>())
+                        )
                     }
-                    delay(METRICS_UPDATE_CADENCE)
                 }
+                delay(METRICS_UPDATE_CADENCE)
             }
         }
     }
 
-    fun onStop(route: Route?) {
+    fun onStop() {
         updateJob?.cancel()
     }
 

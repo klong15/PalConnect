@@ -61,9 +61,9 @@ fun OverviewScreen(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_START) {
-                currentOnStart(Route.Overview)
+                currentOnStart()
             } else if (event == Lifecycle.Event.ON_STOP) {
-                currentOnStop(Route.Overview)
+                currentOnStop()
             }
         }
 

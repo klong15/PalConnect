@@ -52,6 +52,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.palconnect.R
+import com.example.palconnect.Route
 import com.example.palconnect.models.Player
 import com.example.palconnect.models.PlayersModel
 import com.example.palconnect.viewmodels.PlayersUiState
@@ -74,11 +75,14 @@ fun PlayersScreen(
 
     // Feed lifecycle events back into viewmodel
     val currentOnStart by rememberUpdatedState(viewModel::onStart)
+    val currentOnStop by rememberUpdatedState(viewModel::onStop)
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_START) {
                 currentOnStart()
+            } else if (event == Lifecycle.Event.ON_STOP) {
+                currentOnStop()
             }
         }
 
