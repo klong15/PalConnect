@@ -50,9 +50,13 @@ class PlayersViewModel(
     private fun refreshPlayers() {
         viewModelScope.launch {
             palApiService.getPlayers() { response ->
+                var realPlayers: PlayersModel = Json.decodeFromString(response.body<String>())
+                var players = PlayersModel(
+                    players = realPlayers.players + PlayersModel.createDummyData(50)
+                )
                 _uiState.update { currentState ->
                     currentState.copy(
-                        playersModel = Json.decodeFromString(response.body<String>())
+                        playersModel = players
                     )
                 }
             }
