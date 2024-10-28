@@ -24,7 +24,7 @@ class PalApiService {
         success: suspend (HttpResponse) -> Unit = {},
     ): HttpResponse? {
         return makeGetRequest(
-            endpoint= "/v1/api/info",
+            endpoint = "/v1/api/info",
             error = error,
             exception = exception,
             success = success
@@ -37,7 +37,7 @@ class PalApiService {
         success: suspend (HttpResponse) -> Unit = {},
     ): HttpResponse? {
         return makeGetRequest(
-            endpoint= "/v1/api/players",
+            endpoint = "/v1/api/players",
             error = error,
             exception = exception,
             success = success
@@ -50,7 +50,7 @@ class PalApiService {
         success: suspend (HttpResponse) -> Unit = {},
     ): HttpResponse? {
         return makeGetRequest(
-            endpoint= "/v1/api/metrics",
+            endpoint = "/v1/api/metrics",
             error = error,
             exception = exception,
             success = success
@@ -64,7 +64,13 @@ class PalApiService {
         success: suspend (HttpResponse) -> Unit = {},
     ): HttpResponse? {
         val jsonMessage = "{\n  \"message\": \"$message\"\n}"
-        return makePostRequest("/v1/api/announce", jsonMessage)
+        return makePostRequest(
+            endpoint= "/v1/api/announce",
+            body = jsonMessage,
+            error = error,
+            exception = exception,
+            success = success
+        )
     }
 
     suspend fun saveWorld(
@@ -72,7 +78,12 @@ class PalApiService {
         exception: suspend (Exception) -> Unit = {},
         success: suspend (HttpResponse) -> Unit = {},
     ): HttpResponse? {
-        return makePostRequest("/v1/api/save", "")
+        return makePostRequest(
+            endpoint= "/v1/api/save",
+            error = error,
+            exception = exception,
+            success = success
+        )
     }
 
     private suspend fun makeGetRequest(
@@ -109,7 +120,7 @@ class PalApiService {
 
     private suspend fun makePostRequest(
         endpoint: String,
-        body: String,
+        body: String = "",
         error: suspend (HttpResponse) -> Unit = {},
         exception: suspend (Exception) -> Unit = { e -> },
         success: suspend (HttpResponse) -> Unit = {}
