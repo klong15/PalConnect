@@ -1,6 +1,7 @@
 package com.example.palconnect
 
 import androidx.compose.ui.Modifier
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.serialization.Serializable
@@ -17,11 +18,14 @@ sealed interface Route {
 }
 
 class NavigationManager {
-    private val _route = MutableSharedFlow<Route>()
+    private val _route = MutableSharedFlow<Route>(
+        extraBufferCapacity = 1
+    )
     val route: SharedFlow<Route> = _route
 
     fun navigateTo(event: Route) {
-        _route.tryEmit(event)
+        val result = _route.tryEmit(event)
+        val a = result
     }
 
     suspend fun navigateToAsync(event: Route) {

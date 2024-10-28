@@ -9,65 +9,52 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import kotlinx.serialization.json.Json
 
 class PalApiService {
 
     private var _client = HttpClient(CIO)
     private var _ip: String = ""
     private var _password: String = ""
+    val ignoreKeysJson = Json { ignoreUnknownKeys }
 
-    suspend fun getServerInfo(error: suspend (HttpResponse) -> Unit = {},
-                              exception: suspend (Exception) -> Unit = { e -> },
-                              success: suspend (HttpResponse) -> Unit,) {
-        try {
-            val response = getServerInfo()
-
-            if (response.status == HttpStatusCode.OK) {
-                success(response)
-            } else {
-                error(response)
-            }
-        } catch (e: Exception) {
-            exception(e)
-        }
+    suspend fun getServerInfo(
+        error: suspend (HttpResponse) -> Unit = {},
+        exception: suspend (Exception) -> Unit = {},
+        success: suspend (HttpResponse) -> Unit = {},
+    ): HttpResponse? {
+        return makeGetRequest(
+            endpoint= "/v1/api/info",
+            error = error,
+            exception = exception,
+            success = success
+        )
     }
 
-    suspend fun getServerInfo(): HttpResponse {
-        return makeGetRequest("/v1/api/info")
+    suspend fun getPlayers(
+        error: suspend (HttpResponse) -> Unit = {},
+        exception: suspend (Exception) -> Unit = {},
+        success: suspend (HttpResponse) -> Unit = {},
+    ): HttpResponse? {
+        return makeGetRequest(
+            endpoint= "/v1/api/players",
+            error = error,
+            exception = exception,
+            success = success
+        )
     }
 
-    suspend fun getServerMetrics(error: suspend (HttpResponse) -> Unit = {},
-                              exception: suspend (Exception) -> Unit = {},
-                              success: suspend (HttpResponse) -> Unit,) {
-        try {
-            val response = getServerMetrics()
-
-            if (response.status == HttpStatusCode.OK) {
-                println("Metrics success!")
-                success(response)
-            } else {
-                println("Metrics error!")
-                error(response)
-            }
-        } catch (e: Exception) {
-            println("Metrics exception!")
-            exception(e)
-        }
-    }
-
-    suspend fun getServerMetrics(): HttpResponse {
-        return makeGetRequest("/v1/api/metrics")
-    }
-
-    private suspend fun makeGetRequest(endpoint: String): HttpResponse {
-        val request: HttpResponse = _client.request("http://${_ip}${endpoint}") {
-            method = HttpMethod.Get
-            headers {
-                basicAuth("admin", _password)
-            }
-        }
-
-        return request
+    suspend fun getServerMetrics(
+        error: suspend (HttpResponse) -> Unit = {},
+        exception: suspend (Exception) -> Unit = {},
+        success: suspend (HttpResponse) -> Unit = {},
+    ): HttpResponse? {
+        return makeGetRequest(
+            endpoint= "/v1/api/metrics",
+            error = error,
+            exception = exception,
+            success = success
+        )
     }
 
     suspend fun announceMessage(
@@ -75,21 +62,7 @@ class PalApiService {
         error: suspend (HttpResponse) -> Unit = {},
         exception: suspend (Exception) -> Unit = {},
         success: suspend (HttpResponse) -> Unit = {},
-    ) {
-        try {
-            val response = announceMessage(message)
-
-            if (response.status == HttpStatusCode.OK) {
-                success(response)
-            } else {
-                error(response)
-            }
-        } catch (e: Exception) {
-            exception(e)
-        }
-    }
-
-    suspend fun announceMessage(message: String): HttpResponse {
+    ): HttpResponse? {
         val jsonMessage = "{\n  \"message\": \"$message\"\n}"
         return makePostRequest("/v1/api/announce", jsonMessage)
     }
@@ -98,30 +71,74 @@ class PalApiService {
         error: suspend (HttpResponse) -> Unit = {},
         exception: suspend (Exception) -> Unit = {},
         success: suspend (HttpResponse) -> Unit = {},
-    ) {
-        try {
-            val response = makePostRequest("/v1/api/save", "")
+    ): HttpResponse? {
+        return makePostRequest("/v1/api/save", "")
+    }
 
-            if (response.status == HttpStatusCode.OK) {
-                success(response)
-            } else {
-                error(response)
+    private suspend fun makeGetRequest(
+        endpoint: String,
+        error: suspend (HttpResponse) -> Unit = {},
+        exception: suspend (Exception) -> Unit = { e -> },
+        success: suspend (HttpResponse) -> Unit = {}
+    ): HttpResponse? {
+
+        var status = -1
+        var response: HttpResponse? = null
+
+        try {
+            response = _client.request("http://${_ip}${endpoint}") {
+                method = HttpMethod.Get
+                headers {
+                    basicAuth("admin", _password)
+                }
             }
+
+            status = if (response.status == HttpStatusCode.OK) 0
+            else 1
+
         } catch (e: Exception) {
             exception(e)
         }
+
+        //Execute callbacks outside of try block so exceptions caused here aren't caught and potentially ignored
+        if(status == 0) success(response!!)
+        if(status == 1) error(response!!)
+
+        return response
     }
 
-    private suspend fun makePostRequest(endpoint: String, body: String): HttpResponse {
-        val request: HttpResponse = _client.request("http://${_ip}${endpoint}") {
-            method = HttpMethod.Post
-            headers {
-                basicAuth("admin", _password)
+    private suspend fun makePostRequest(
+        endpoint: String,
+        body: String,
+        error: suspend (HttpResponse) -> Unit = {},
+        exception: suspend (Exception) -> Unit = { e -> },
+        success: suspend (HttpResponse) -> Unit = {}
+    ): HttpResponse? {
+
+        var status = -1
+        var response: HttpResponse? = null
+
+        try {
+            response = _client.request("http://${_ip}${endpoint}") {
+                method = HttpMethod.Post
+                headers {
+                    basicAuth("admin", _password)
+                }
+                setBody(body)
             }
-            setBody(body)
+
+            status = if (response.status == HttpStatusCode.OK) 0
+            else 1
+
+        } catch (e: Exception) {
+            exception(e)
         }
 
-        return request
+        //Execute callbacks outside of try block so exceptions caused here aren't caught and potentially ignored
+        if(status == 0) success(response!!)
+        if(status == 1) error(response!!)
+
+        return response
     }
 
     fun setServerInfo(ip: String, password: String) {

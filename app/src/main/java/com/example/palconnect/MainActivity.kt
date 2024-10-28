@@ -16,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.palconnect.ui.config.ConfigScreen
 import com.example.palconnect.ui.overview.OverviewScreen
+import com.example.palconnect.ui.players.PlayersScreen
 import com.example.palconnect.ui.theme.PalConnectTheme
 
 class MainActivity : ComponentActivity() {
@@ -71,6 +72,9 @@ fun PalNavHost(
         }
         composable<Route.Overview> {
             OverviewScreen()
+        }
+        composable<Route.Players> {
+            PlayersScreen()
         }
     }
 }

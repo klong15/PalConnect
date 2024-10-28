@@ -27,6 +27,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -42,9 +43,6 @@ import com.example.palconnect.viewmodels.OverviewUiState
 import com.example.palconnect.viewmodels.OverviewViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import androidx.activity.viewModels
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.ViewModelProvider
 
 @Composable
 fun OverviewScreen(
@@ -74,13 +72,15 @@ fun OverviewScreen(
         }
     }
 
-
     val uiState by viewModel.uiState.collectAsState()
+
+    // Content
     OverviewContent(
         uiState = uiState,
         makeAnnouncementClicked = viewModel::makeAnnouncementClicked,
         announcementResponseMessage = viewModel.announcementResponseMessage,
-        saveWorldClicked = viewModel::saveWorldClicked
+        saveWorldClicked = viewModel::saveWorldClicked,
+        playersClicked = viewModel::playersClicked,
     )
 }
 
@@ -91,6 +91,7 @@ fun OverviewContent(
     announcementResponseMessage: SharedFlow<String>,
     makeAnnouncementClicked: (String) -> Unit = {},
     saveWorldClicked: (Context) -> Unit = {},
+    playersClicked: () -> Unit = {}
 ) {
     // Alert Dialog things
     var openDialog by rememberSaveable() { mutableStateOf(false) }
@@ -109,13 +110,20 @@ fun OverviewContent(
             text = "Frame Time: ${uiState.metricsModel.serverframetime}",
             style = MaterialTheme.typography.titleLarge,
         )
-        ElevatedButton(onClick = { openDialog = true } ) {
+        ElevatedButton(
+            onClick = { openDialog = true }
+        ) {
             Text("Announce Message")
         }
         SaveWorldButton(
             enabled = uiState.saveWorldButtonEnable,
             saveWorldClicked = saveWorldClicked
         )
+        ElevatedButton(
+            onClick = playersClicked
+        ) {
+            Text( text = "Players: ${uiState.metricsModel.currentplayernum}")
+        }
     }
 
     when {

@@ -66,7 +66,7 @@ class ConfigViewModel(
             try {
                 setIsLoading(true)
                 val result = palApiService.getServerInfo()
-                if(result.status == HttpStatusCode.OK) {
+                if(result?.status == HttpStatusCode.OK) {
 
                     _configUiState.update { currentState ->
                         currentState.copy(

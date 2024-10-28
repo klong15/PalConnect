@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import androidx.lifecycle.viewmodel.viewModelFactory
+import kotlinx.coroutines.isActive
 
 private const val METRICS_UPDATE_CADENCE: Long = 5000L
 
@@ -65,8 +66,6 @@ class OverviewViewModel(
     private val _uiState = MutableStateFlow(OverviewUiState())
     val uiState: StateFlow<OverviewUiState> = _uiState.asStateFlow()
 
-    var updatePlayers = true;
-
     private val _announcementResponseMessage = MutableSharedFlow<String>()
     val announcementResponseMessage: SharedFlow<String> = _announcementResponseMessage
 
@@ -91,9 +90,8 @@ class OverviewViewModel(
         }
 
         if(route == Route.Overview || route == Route.Players) {
-            updatePlayers = true
             updateJob = viewModelScope.launch {
-                while (updatePlayers) {
+                while (isActive) {
                     println("Fetching Metrics!")
                     palApiService.getServerMetrics() { response ->
                         _uiState.update { currentState ->
@@ -109,8 +107,6 @@ class OverviewViewModel(
     }
 
     fun onStop(route: Route?) {
-        println("onStop")
-        updatePlayers = false
         updateJob?.cancel()
     }
 
@@ -158,5 +154,9 @@ class OverviewViewModel(
                 )
             }
         }
+    }
+
+    fun playersClicked() {
+        navigationManager.navigateTo(Route.Players)
     }
 }
