@@ -128,7 +128,7 @@ fun PlayerCardContent(
     val expanded = player.playerId == selectedPlayer.value
     Surface (
         color = MaterialTheme.colorScheme.primary,
-        onClick = { selectedPlayer.value = player.playerId }
+        onClick = { selectedPlayer.value = if(selectedPlayer.value != player.playerId) player.playerId else ""}
     ){
         Column(
             modifier = Modifier
