@@ -1,5 +1,6 @@
 package com.example.palconnect.viewmodels
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -7,6 +8,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.palconnect.NavigationManager
 import com.example.palconnect.PalConnectApp
+import com.example.palconnect.R
 import com.example.palconnect.models.PlayersModel
 import com.example.palconnect.services.PalApiService
 import io.ktor.client.call.body
@@ -20,7 +22,8 @@ import kotlinx.serialization.json.Json
 
 data class PlayersUiState(
     var isLoadingData: Boolean = false,
-    var errorMessage: String = "",
+    @StringRes
+    var errorStrId: Int = 0,
     var playersModel: PlayersModel = PlayersModel()
 )
 
@@ -48,6 +51,8 @@ class PlayersViewModel(
         if(_uiState.value.playersModel.players.isEmpty()) {
             refreshPlayers()
         }
+
+        var msg = R.string.error_load_players
     }
 
     private fun refreshPlayers() {
@@ -56,7 +61,7 @@ class PlayersViewModel(
             _uiState.update { currentState ->
                 currentState.copy(
                     isLoadingData = true,
-                    errorMessage = ""
+                    errorStrId = 0,
                 )
             }
 
@@ -68,15 +73,16 @@ class PlayersViewModel(
                 )
             }
 
-            var errorMessage = ""
+            var errorStrId = 0
             if(response == null || response.status != HttpStatusCode.OK) {
-                errorMessage = "Error: Couldn't load players"
+                errorStrId = R.string.error_load_players
+
             }
 
             _uiState.update { currentState ->
                 currentState.copy(
                     isLoadingData = false,
-                    errorMessage = errorMessage,
+                    errorStrId = errorStrId,
                     playersModel = players ?: PlayersModel()
                 )
             }
