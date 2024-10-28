@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -91,7 +92,7 @@ fun OverviewContent(
     makeAnnouncementClicked: (String) -> Unit = {}
 ) {
     // Alert Dialog things
-    var openDialog by remember { mutableStateOf(false) }
+    var openDialog by rememberSaveable() { mutableStateOf(false) }
 
     Column (
         modifier = Modifier.fillMaxSize()
@@ -109,7 +110,10 @@ fun OverviewContent(
             style = MaterialTheme.typography.titleLarge,
         )
         ElevatedButton(onClick = { openDialog = true } ) {
-            Text("Save World")
+            Text("Announce Message")
+        }
+        ElevatedButton(onClick = { openDialog = true } ) {
+            Text("Announce Message")
         }
     }
 
@@ -142,7 +146,7 @@ fun AnnounceDialog(
                 .height(300.dp)
                 .padding(horizontal = 0.dp)
         ){
-            var announceResponse by remember { mutableStateOf("") }
+            var announceResponse by rememberSaveable { mutableStateOf("") }
             LaunchedEffect("AnnounceResponse") {
                 announcementResponseMessage.collect { msg ->
                     announceResponse = msg
@@ -184,7 +188,7 @@ fun AnnounceDialog(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        var text by remember { mutableStateOf("") }
+                        var text by rememberSaveable { mutableStateOf("") }
                         TextField(
 
                             modifier = Modifier

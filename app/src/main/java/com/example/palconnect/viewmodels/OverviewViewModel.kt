@@ -8,6 +8,7 @@ import com.example.palconnect.models.ServerInfoModel
 import com.example.palconnect.models.ServerMetricsModel
 import com.example.palconnect.services.PalApiService
 import io.ktor.client.call.body
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,6 +33,7 @@ class OverviewViewModel(
     private val navigationManager: NavigationManager
 ): ViewModel() {
 
+    private var updateJob: Job? = null
 
     private val _uiState = MutableStateFlow(OverviewUiState())
     val uiState: StateFlow<OverviewUiState> = _uiState.asStateFlow()
@@ -63,7 +65,7 @@ class OverviewViewModel(
 
         if(route == Route.Overview || route == Route.Players) {
             updatePlayers = true
-            viewModelScope.launch {
+            updateJob = viewModelScope.launch {
                 while (updatePlayers) {
                     println("Fetching Metrics!")
                     palApiService.getServerMetrics() { response ->
@@ -82,6 +84,7 @@ class OverviewViewModel(
     fun onStop(route: Route?) {
         println("onStop")
         updatePlayers = false
+        updateJob?.cancel()
     }
 
     fun makeAnnouncementClicked(message: String) {
