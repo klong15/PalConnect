@@ -10,6 +10,7 @@ import com.example.palconnect.PalConnectApp
 import com.example.palconnect.models.PlayersModel
 import com.example.palconnect.services.PalApiService
 import io.ktor.client.call.body
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +19,8 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
 data class PlayersUiState(
+    var isLoadingData: Boolean = false,
+    var errorMessage: String = "",
     var playersModel: PlayersModel = PlayersModel()
 )
 
@@ -49,16 +52,33 @@ class PlayersViewModel(
 
     private fun refreshPlayers() {
         viewModelScope.launch {
-            palApiService.getPlayers() { response ->
+
+            _uiState.update { currentState ->
+                currentState.copy(
+                    isLoadingData = true,
+                    errorMessage = ""
+                )
+            }
+
+            var players: PlayersModel? = null
+            val response = palApiService.getPlayers() { response ->
                 var realPlayers: PlayersModel = Json.decodeFromString(response.body<String>())
-                var players = PlayersModel(
+                players = PlayersModel(
                     players = realPlayers.players + PlayersModel.createDummyData(50)
                 )
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        playersModel = players
-                    )
-                }
+            }
+
+            var errorMessage = ""
+            if(response == null || response.status != HttpStatusCode.OK) {
+                errorMessage = "Error: Couldn't load players"
+            }
+
+            _uiState.update { currentState ->
+                currentState.copy(
+                    isLoadingData = false,
+                    errorMessage = errorMessage,
+                    playersModel = players ?: PlayersModel()
+                )
             }
         }
     }

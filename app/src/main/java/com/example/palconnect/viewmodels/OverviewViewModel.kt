@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import androidx.lifecycle.viewmodel.viewModelFactory
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.isActive
 
 private const val METRICS_UPDATE_CADENCE: Long = 5000L
@@ -144,9 +145,12 @@ class OverviewViewModel(
                     saveWorldButtonEnable = false
                 )
             }
-            palApiService.saveWorld() {
-                Toast.makeText(context, "World save has been initiated", Toast.LENGTH_SHORT).show()
+            var toastMessage = "ERROR: World save was NOT initiated."
+            val response = palApiService.saveWorld() {
+                toastMessage = "World save has been initiated."
             }
+
+            Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show()
 
             _uiState.update { currentState ->
                 currentState.copy(
