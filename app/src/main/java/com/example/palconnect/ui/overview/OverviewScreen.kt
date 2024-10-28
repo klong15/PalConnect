@@ -19,6 +19,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +48,7 @@ import kotlinx.coroutines.flow.SharedFlow
 @Composable
 fun OverviewScreen(
     modifier: Modifier = Modifier,
+    topBarTitle: MutableState<String>,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     viewModel: OverviewViewModel = viewModel(
         factory = OverviewViewModel.Factory
@@ -73,6 +75,7 @@ fun OverviewScreen(
     }
 
     val uiState by viewModel.uiState.collectAsState()
+    topBarTitle.value = uiState.pageTitle
 
     // Content
     OverviewContent(

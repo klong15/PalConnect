@@ -29,6 +29,7 @@ import kotlinx.serialization.json.Json
 private const val METRICS_UPDATE_CADENCE: Long = 5000L
 
 data class OverviewUiState(
+    var pageTitle: String = "",
     var infoModel: ServerInfoModel = ServerInfoModel(),
     var metricsModel: ServerMetricsModel = ServerMetricsModel(),
     var errorMessage: String = "",
@@ -72,8 +73,10 @@ class OverviewViewModel(
                 viewModelScope.launch {
                     palApiService.getServerInfo() { response ->
                         _uiState.update { currentState ->
+                            val infoModel: ServerInfoModel = Json.decodeFromString(response.body<String>())
                             currentState.copy(
-                                infoModel = Json.decodeFromString(response.body<String>())
+                                pageTitle = infoModel.servername,
+                                infoModel = infoModel
                             )
                         }
                     }

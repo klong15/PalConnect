@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -38,6 +39,7 @@ import com.example.palconnect.viewmodels.viewModelFactory
 @Composable
 fun ConfigScreen(
     modifier: Modifier = Modifier,
+    topBarTitle: MutableState<String>,
     viewModel: ConfigViewModel = viewModel(
         factory = ConfigViewModel.Factory
     ),
@@ -45,6 +47,9 @@ fun ConfigScreen(
 //    val modelState by viewModel.model.observeAsState()
     val configUiState by viewModel.configUiState.collectAsState()
     val focusRequester = remember { FocusRequester() }
+
+//    val uiState by viewModel.uiState.collectAsState()
+    topBarTitle.value = "Configzz"
 
     ConfigContent(
         modifier = modifier,

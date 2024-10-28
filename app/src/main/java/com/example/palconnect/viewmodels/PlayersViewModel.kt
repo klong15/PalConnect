@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
 data class PlayersUiState(
+    var pageTitle: String = "Players",
     var isLoadingData: Boolean = false,
     @StringRes
     var errorStrId: Int = 0,

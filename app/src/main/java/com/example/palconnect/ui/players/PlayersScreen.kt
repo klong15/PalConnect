@@ -62,6 +62,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun PlayersScreen(
     modifier: Modifier = Modifier,
+    topBarTitle: MutableState<String>,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     viewModel: PlayersViewModel = viewModel(
         factory = PlayersViewModel.Factory
@@ -69,6 +70,7 @@ fun PlayersScreen(
 ) {
     // Initial setup
     val uiState by viewModel.uiState.collectAsState()
+    topBarTitle.value = uiState.pageTitle
 
     // Feed lifecycle events back into viewmodel
     val currentOnStart by rememberUpdatedState(viewModel::onStart)
