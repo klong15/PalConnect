@@ -14,7 +14,8 @@ data class PlayersModel(
                 size = size,
                 init = { index ->
                     Player(
-                        name = "Player${index}"
+                        name = "Player${index}",
+                        playerId = "fake_player_${index}"
                     )
                 }
             )
