@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.palconnect.NavigationManager
 import com.example.palconnect.PalConnectApp
 import com.example.palconnect.Route
@@ -21,11 +22,9 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import androidx.lifecycle.viewmodel.viewModelFactory
-import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.isActive
 
 private const val METRICS_UPDATE_CADENCE: Long = 5000L
 
@@ -35,8 +34,6 @@ data class OverviewUiState(
     var errorMessage: String = "",
     var awaitingAnnounceResponse: Boolean = false,
     var saveWorldButtonEnable: Boolean = true,
-//    private val _saveWorldButtonFlow: MutableSharedFlow<Boolean> = MutableSharedFlow<Boolean>(),
-//    val saveWorldButtonFlow: SharedFlow<Boolean> = _saveWorldButtonFlow
 )
 
 class OverviewViewModel(
@@ -54,12 +51,6 @@ class OverviewViewModel(
                 )
             }
         }
-    }
-
-    var myvalue = 0
-
-    init {
-        myvalue = 1
     }
 
     private var updateJob: Job? = null

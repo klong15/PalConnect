@@ -1,8 +1,12 @@
 package com.example.palconnect.viewmodels
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.palconnect.NavigationManager
+import com.example.palconnect.PalConnectApp
 import com.example.palconnect.Route
 import com.example.palconnect.models.ServerInfoModel
 import com.example.palconnect.services.PalApiService
@@ -30,7 +34,17 @@ class ConfigViewModel(
     private val navigationManager: NavigationManager
 ): ViewModel() {
 
-//    var model: MutableLiveData<ServerInfoModel> = MutableLiveData<ServerInfoModel>(ServerInfoModel())
+    companion object {
+
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                ConfigViewModel(
+                    PalConnectApp.palModule.palApiService,
+                    PalConnectApp.palModule.palNavigationManager
+                )
+            }
+        }
+    }
 
     private val _configUiState = MutableStateFlow(ConfigUiState())
     val configUiState: StateFlow<ConfigUiState> = _configUiState.asStateFlow()

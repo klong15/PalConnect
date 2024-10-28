@@ -39,9 +39,7 @@ import com.example.palconnect.viewmodels.viewModelFactory
 fun ConfigScreen(
     modifier: Modifier = Modifier,
     viewModel: ConfigViewModel = viewModel(
-        factory = viewModelFactory {
-            ConfigViewModel(PalConnectApp.palModule.palApiService, PalConnectApp.palModule.palNavigationManager)
-        }
+        factory = ConfigViewModel.Factory
     ),
 ) {
 //    val modelState by viewModel.model.observeAsState()
