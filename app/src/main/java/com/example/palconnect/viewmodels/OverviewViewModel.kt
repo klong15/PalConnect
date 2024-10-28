@@ -1,5 +1,8 @@
 package com.example.palconnect.viewmodels
 
+import android.app.Activity
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.palconnect.NavigationManager
@@ -93,7 +96,8 @@ class OverviewViewModel(
                 currentState.copy( awaitingAnnounceResponse = true)
             }
             var responseMessage = ""
-            val response = palApiService.announceMessage(message= message,
+            val response = palApiService.announceMessage(
+                message= message,
                 error = { response ->
                     responseMessage = "Announcement failed to send."
                 },
@@ -110,6 +114,15 @@ class OverviewViewModel(
                 )
             }
             _announcementResponseMessage.emit(responseMessage)
+        }
+    }
+
+    fun saveWorldClicked() {
+        viewModelScope.launch {
+            palApiService.saveWorld() {
+//                Toast.makeText(LocalContext.current as? Activity, "World save has been initiated")
+
+            }
         }
     }
 }

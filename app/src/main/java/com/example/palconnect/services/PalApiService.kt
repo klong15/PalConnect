@@ -94,6 +94,24 @@ class PalApiService {
         return makePostRequest("/v1/api/announce", jsonMessage)
     }
 
+    suspend fun saveWorld(
+        error: suspend (HttpResponse) -> Unit = {},
+        exception: suspend (Exception) -> Unit = {},
+        success: suspend (HttpResponse) -> Unit = {},
+    ) {
+        try {
+            val response = makePostRequest("/v1/api/save", "")
+
+            if (response.status == HttpStatusCode.OK) {
+                success(response)
+            } else {
+                error(response)
+            }
+        } catch (e: Exception) {
+            exception(e)
+        }
+    }
+
     private suspend fun makePostRequest(endpoint: String, body: String): HttpResponse {
         val request: HttpResponse = _client.request("http://${_ip}${endpoint}") {
             method = HttpMethod.Post

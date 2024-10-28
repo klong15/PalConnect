@@ -80,7 +80,8 @@ fun OverviewScreen(
     OverviewContent(
         uiState = uiState,
         makeAnnouncementClicked = viewModel::makeAnnouncementClicked,
-        announcementResponseMessage = viewModel.announcementResponseMessage
+        announcementResponseMessage = viewModel.announcementResponseMessage,
+        saveWorldClicked = viewModel::saveWorldClicked
     )
 }
 
@@ -89,7 +90,8 @@ fun OverviewContent(
     modifier: Modifier = Modifier,
     uiState: OverviewUiState,
     announcementResponseMessage: SharedFlow<String>,
-    makeAnnouncementClicked: (String) -> Unit = {}
+    makeAnnouncementClicked: (String) -> Unit = {},
+    saveWorldClicked: () -> Unit = {},
 ) {
     // Alert Dialog things
     var openDialog by rememberSaveable() { mutableStateOf(false) }
@@ -112,8 +114,8 @@ fun OverviewContent(
         ElevatedButton(onClick = { openDialog = true } ) {
             Text("Announce Message")
         }
-        ElevatedButton(onClick = { openDialog = true } ) {
-            Text("Announce Message")
+        ElevatedButton(onClick = saveWorldClicked ) {
+            Text("Save World")
         }
     }
 
