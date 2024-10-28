@@ -6,11 +6,21 @@ import kotlinx.serialization.json.JsonNames
 
 @Serializable
 data class PlayersModel(
-    val players: Array<Player> = Array<Player>(
-        size = 0,
-        init = { index -> Player() }
-    )
-)
+    val players: Array<Player> = PlayersModel.createDummyData(0)
+) {
+    companion object {
+        fun createDummyData(size: Int): Array<Player> {
+            return Array<Player>(
+                size = size,
+                init = { index ->
+                    Player(
+                        name = "Player${index}"
+                    )
+                }
+            )
+        }
+    }
+}
 
 @Serializable
 data class Player(
