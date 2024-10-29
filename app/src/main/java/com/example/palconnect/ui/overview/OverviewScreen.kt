@@ -3,7 +3,6 @@ package com.example.palconnect.ui.overview
 import android.content.Context
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +25,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -64,7 +64,6 @@ import com.example.palconnect.viewmodels.OverviewViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import java.util.Locale
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 
 @Composable
 fun OverviewScreen(
@@ -185,7 +184,9 @@ fun OverviewLandscape(
     playersClicked: () -> Unit = {},
 ) {
 
-    Row {
+    Row (
+        modifier = modifier
+    ){
         val scrollState = rememberScrollState()
 
         ServerInfo(
@@ -232,7 +233,8 @@ fun OverviewPortrait(
         modifier = modifier.fillMaxSize()
     ) {
         ServerInfo(
-            modifier = Modifier, description = uiState.infoModel.description
+            modifier = Modifier,
+            description = uiState.infoModel.description
         )
         MetricsInfo(
             curPlayers = uiState.metricsModel.currentplayernum,
@@ -263,7 +265,9 @@ fun ActionsSection(
     saveWorldClicked: (Context) -> Unit = { context -> },
     playersClicked: () -> Unit = {},
 ) {
-    Column {
+    Column (
+        modifier = modifier
+    ){
         Text(
             text = stringResource(R.string.actions),
             style = MaterialTheme.typography.titleLarge,
@@ -277,7 +281,7 @@ fun ActionsSection(
                     .padding(start = 8.dp, end = 4.dp)
             ) {
                 Text(
-                    text = "Announce Message", overflow = TextOverflow.Ellipsis, maxLines = 1
+                    text = stringResource(R.string.announce_message), overflow = TextOverflow.Ellipsis, maxLines = 1
                 )
             }
             SaveWorldButton(
@@ -325,24 +329,26 @@ fun MetricsInfo(
             modifier = Modifier.padding(vertical = 8.dp)
         )
         Card {
-            Column {
+            Column(
+                modifier = Modifier.padding(8.dp)
+            ) {
                 Row {
                     Column(
                         modifier = Modifier.weight(1f)
                     ) {
-                        MetricItem("Current Players", "$curPlayers")
-                        MetricItem("Max Players", "$maxPlayers")
+                        MetricItem(stringResource(R.string.current_players), "$curPlayers")
+                        MetricItem(stringResource(R.string.max_players), "$maxPlayers")
                     }
                     Column(
                         modifier = Modifier.weight(1f)
                     ) {
-                        MetricItem("Frame Rate", "$fps")
-                        MetricItem("Frame Time", frameTime.precision(2))
+                        MetricItem(stringResource(R.string.frame_rate), "$fps")
+                        MetricItem(stringResource(R.string.frame_time), frameTime.precision(2))
                     }
                 }
                 MetricItem(
-                    metric = "Server Uptime",
-                    value = "$upTime seconds",
+                    metric = stringResource(R.string.server_uptime),
+                    value = stringResource(R.string.uptime_seconds, upTime),
                     useWeight = false
                 )
             }
@@ -382,25 +388,30 @@ fun ServerInfo(
     description: String,
 ) {
     val scrollState = rememberScrollState()
-    Column(
-        modifier = modifier.padding(16.dp)
+    Box (
+        modifier = modifier
             .verticalScroll(scrollState)
-    ) {
-        Image(
-            painter = painterResource(R.drawable.server_image),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .height(200.dp)
-                .clip(RoundedCornerShape(8.dp))
-        )
-        Text(
-            text = description,
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(16.dp)
-        )
+    ){
+        Column(
+            modifier = modifier
+            .padding(16.dp)
+        ) {
+            Image(
+                painter = painterResource(R.drawable.server_image),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(8.dp))
+            )
+            Text(
+                text = description,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(16.dp)
+            )
+        }
     }
 }
 
@@ -417,7 +428,7 @@ fun SaveWorldButton(
             saveWorldClicked(context)
         }, enabled = enabled
     ) {
-        Text("Save World")
+        Text(stringResource(R.string.save_world))
     }
 }
 
@@ -468,7 +479,7 @@ fun AnnounceDialog(
                             .padding(vertical = 16.dp)
                             .height(40.dp)
                             .align(Alignment.BottomCenter), onClick = { onDismissRequest() }) {
-                            Text("Dismiss")
+                            Text(stringResource(R.string.dismiss))
                         }
                     }
                 } else {
@@ -487,7 +498,7 @@ fun AnnounceDialog(
                                 .padding(horizontal = 16.dp),
                             value = text,
                             placeholder = {
-                                Text("Announcement")
+                                Text(stringResource(R.string.announcement))
                             },
                             onValueChange = { newText ->
                                 text = newText

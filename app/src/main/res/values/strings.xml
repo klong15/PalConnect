@@ -8,4 +8,14 @@
     <string name="metrics">Live Metrics</string>
     <string name="dynamic_colors_on_toast">Dynamic Colors are on!</string>
     <string name="dynamic_colors_off_toast">Dynamic Colors are off!</string>
+    <string name="announce_message">Announce Message</string>
+    <string name="current_players">Current Players</string>
+    <string name="max_players">Max Players</string>
+    <string name="frame_rate">Frame Rate</string>
+    <string name="server_uptime">Server Uptime</string>
+    <string name="frame_time">Frame Time</string>
+    <string name="uptime_seconds">%1$s seconds</string>
+    <string name="save_world">Save World</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="announcement">Announcement</string>
 </resources>
