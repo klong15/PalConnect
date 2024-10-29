@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.palconnect.NavBarAction
 import com.example.palconnect.NavigationManager
 import com.example.palconnect.PalConnectApp
 import com.example.palconnect.Route
@@ -39,7 +40,7 @@ data class OverviewUiState(
     var errorMessage: String = "",
     var awaitingAnnounceResponse: Boolean = false,
     var saveWorldButtonEnable: Boolean = true,
-    var initialLoad: Boolean = true,
+    var isInitialLoading: Boolean = true,
 )
 
 class OverviewViewModel(
@@ -182,5 +183,9 @@ class OverviewViewModel(
 
     fun playersClicked() {
         navigationManager.navigateTo(Route.Players)
+    }
+
+    fun navBarActionsClicked(type: NavBarAction) {
+        println("Action bar type $type clicked!")
     }
 }

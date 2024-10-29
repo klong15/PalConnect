@@ -37,6 +37,8 @@ import com.example.palconnect.ui.config.ConfigScreen
 import com.example.palconnect.ui.overview.OverviewScreen
 import com.example.palconnect.ui.players.PlayersScreen
 import com.example.palconnect.ui.theme.PalConnectTheme
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,19 +50,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun NavigatorLaunchedEffect(
-    navController: NavHostController,
-) {
-    LaunchedEffect("NavigationEvents") {
-        PalConnectApp.palModule.palNavigationManager.route.collect { screen ->
-            if(screen == Route.PopBackStack) {
-                navController.popBackStack()
-            } else {
-                navController.navigate(screen)
-            }
-        }
-    }
+enum class NavBarAction() {
+    Settings
 }
 
 fun getInfoByRoute(
@@ -92,6 +83,21 @@ fun getInfoByRoute(
     }
 }
 
+@Composable
+fun NavigatorLaunchedEffect(
+    navController: NavHostController,
+) {
+    LaunchedEffect("NavigationEvents") {
+        PalConnectApp.palModule.palNavigationManager.route.collect { screen ->
+            if(screen == Route.PopBackStack) {
+                navController.popBackStack()
+            } else {
+                navController.navigate(screen)
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PalApp(modifier: Modifier = Modifier) {
@@ -102,7 +108,9 @@ fun PalApp(modifier: Modifier = Modifier) {
         var showBackIcon = remember { mutableStateOf(true) }
         var curScreenBackButton = remember { mutableStateOf<(()->Unit)?>(null) }
         var screenType = remember { mutableStateOf<Route>(Route.Config) }
-
+        var actionClickFlow = remember { MutableSharedFlow<NavBarAction>(
+            extraBufferCapacity = 1
+        ) }
         LaunchedEffect(navController) {
             navController.currentBackStackEntryFlow.collect { backStackEntry ->
                 // You can map the title based on the route using:
@@ -138,7 +146,7 @@ fun PalApp(modifier: Modifier = Modifier) {
                         )
                     },
                     actions = {
-                        NavBarActions(screenType.value)
+                        NavBarActions(screenType.value, actionClickFlow)
                     }
                 )
             },
@@ -148,6 +156,7 @@ fun PalApp(modifier: Modifier = Modifier) {
             PalNavHost(
                 navController = navController,
                 topBarTitle = topBarTitle,
+                actionClickFlow,
                 modifier.padding(innerPadding)
             )
         }
@@ -158,6 +167,7 @@ fun PalApp(modifier: Modifier = Modifier) {
 fun PalNavHost(
     navController: NavHostController,
     topBarTitle: MutableState<String>,
+    navBarActionsFlow: SharedFlow<NavBarAction>,
     modifier: Modifier = Modifier
 ) {
 
@@ -174,7 +184,8 @@ fun PalNavHost(
         }
         composable<Route.Overview> {
             OverviewScreen(
-                topBarTitle = topBarTitle
+                topBarTitle = topBarTitle,
+                navBarActionsFlow = navBarActionsFlow
             )
         }
         composable<Route.Players> {
@@ -186,7 +197,10 @@ fun PalNavHost(
 }
 
 @Composable
-fun NavBarActions(route: Route) {
+fun NavBarActions(
+    route: Route,
+    actionsFlow: MutableSharedFlow<NavBarAction>
+) {
     if(route == Route.Overview){
         Icon(
             imageVector = Icons.Filled.Dns,
@@ -194,7 +208,9 @@ fun NavBarActions(route: Route) {
             modifier = Modifier
                 .clickable(
                     enabled = true,
-                    onClick = { PalConnectApp.palModule.palNavigationManager.navigateTo(Route.Config) }
+                    onClick = {
+                        actionsFlow.tryEmit(NavBarAction.Settings)
+                    }
                 )
                 .padding(horizontal = 8.dp)
         )

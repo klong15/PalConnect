@@ -37,6 +37,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.palconnect.NavBarAction
 import com.example.palconnect.Route
 import com.example.palconnect.models.ServerInfoModel
 import com.example.palconnect.ui.theme.PalConnectTheme
@@ -49,6 +50,7 @@ import kotlinx.coroutines.flow.SharedFlow
 fun OverviewScreen(
     modifier: Modifier = Modifier,
     topBarTitle: MutableState<String>,
+    navBarActionsFlow: SharedFlow<NavBarAction>,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     viewModel: OverviewViewModel = viewModel(
         factory = OverviewViewModel.Factory
@@ -77,6 +79,13 @@ fun OverviewScreen(
     val uiState by viewModel.uiState.collectAsState()
     if(uiState.pageTitle.isNotEmpty()) topBarTitle.value = uiState.pageTitle
 
+    // Listen for nav bar button clicks
+    LaunchedEffect("OverviewNavActions") {
+        navBarActionsFlow.collect { type ->
+            viewModel.navBarActionsClicked(type)
+        }
+    }
+
     // Content
     OverviewContent(
         uiState = uiState,
@@ -98,6 +107,16 @@ fun OverviewContent(
 ) {
     // Alert Dialog things
     var openDialog by rememberSaveable() { mutableStateOf(false) }
+    if(uiState.isInitialLoading) {
+        Box (
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ){
+            CircularProgressIndicator(
+                modifier = Modifier.width(64.dp)
+            )
+        }
+    }
     Column (
         modifier = Modifier.fillMaxSize()
     ){
