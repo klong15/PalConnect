@@ -22,11 +22,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
@@ -41,12 +46,6 @@ import com.example.palconnect.ui.players.PlayersScreen
 import com.example.palconnect.ui.theme.PalMyTheme
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -66,7 +65,6 @@ enum class NavBarAction() {
 }
 
 fun getInfoByRoute(
-    context: Context,
     route:String?,
     showBackIcon: MutableState<Boolean>,
     screenBackButtonCallback: MutableState<(() -> Unit)?>,
@@ -120,7 +118,6 @@ fun PalApp(
     PalMyTheme(
         dynamicColor = dynamicColor.value
     ) {
-        val context = LocalContext.current
         val navController = rememberNavController()
         var topBarTitle = remember { mutableStateOf("") }
         var showBackIcon = remember { mutableStateOf(true) }
@@ -131,8 +128,7 @@ fun PalApp(
         ) }
         LaunchedEffect(navController) {
             navController.currentBackStackEntryFlow.collect { backStackEntry ->
-                // You can map the title based on the route using:
-                getInfoByRoute(context, backStackEntry.destination.route, showBackIcon, curScreenBackButton, screenType)
+                getInfoByRoute(backStackEntry.destination.route, showBackIcon, curScreenBackButton, screenType)
             }
         }
 
