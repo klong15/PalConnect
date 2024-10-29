@@ -102,66 +102,63 @@ fun OverviewScreen(
 fun OverviewContent(
     modifier: Modifier = Modifier,
     uiState: OverviewUiState,
-    announcementResponseMessage: SharedFlow<String>,
+    announcementResponseMessage: SharedFlow<String>? = null,
     makeAnnouncementClicked: (String) -> Unit = {},
-    saveWorldClicked: (Context) -> Unit = {},
+    saveWorldClicked: (Context) -> Unit = {context -> },
     playersClicked: () -> Unit = {},
 ) {
     // Alert Dialog things
     var openDialog by rememberSaveable { mutableStateOf(false) }
-    Surface (
-        modifier = modifier,
-        color = MaterialTheme.colorScheme.surface
-    ) {
-        if (uiState.isInitialLoading) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.width(64.dp)
-                )
-            }
-        } else Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Text(
-                text = uiState.infoModel.servername,
-                style = MaterialTheme.typography.titleLarge,
-            )
-            Text(
-                text = uiState.infoModel.description,
-                style = MaterialTheme.typography.titleLarge,
-            )
-            Text(
-                text = "Frame Time: ${uiState.metricsModel.serverframetime}",
-                style = MaterialTheme.typography.titleLarge,
-            )
-            ElevatedButton(
-                onClick = { openDialog = true }
-            ) {
-                Text("Announce Message")
-            }
-            SaveWorldButton(
-                enabled = uiState.saveWorldButtonEnable,
-                saveWorldClicked = saveWorldClicked
-            )
-            ElevatedButton(
-                onClick = playersClicked
-            ) {
-                Text(text = "Players: ${uiState.metricsModel.currentplayernum}")
-            }
-        }
 
-        when {
-            openDialog -> {
-                AnnounceDialog(
-                    makeAnnouncementClicked = makeAnnouncementClicked,
-                    onDismissRequest = { openDialog = false },
-                    uiState = uiState,
-                    announcementResponseMessage = announcementResponseMessage
-                )
-            }
+    if (uiState.isInitialLoading) {
+        Box(
+            modifier = modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.width(64.dp)
+            )
+        }
+    } else Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Text(
+            text = uiState.infoModel.servername,
+            style = MaterialTheme.typography.titleLarge,
+        )
+        Text(
+            text = uiState.infoModel.description,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+        Text(
+            text = "Frame Time: ${uiState.metricsModel.serverframetime}",
+            style = MaterialTheme.typography.titleLarge,
+        )
+        ElevatedButton(
+            onClick = { openDialog = true }
+        ) {
+            Text("Announce Message")
+        }
+        SaveWorldButton(
+            enabled = uiState.saveWorldButtonEnable,
+            saveWorldClicked = saveWorldClicked
+        )
+        ElevatedButton(
+            onClick = playersClicked
+        ) {
+            Text(text = "Players: ${uiState.metricsModel.currentplayernum}")
+        }
+    }
+
+    when {
+        openDialog -> {
+            AnnounceDialog(
+                makeAnnouncementClicked = makeAnnouncementClicked,
+                onDismissRequest = { openDialog = false },
+                uiState = uiState,
+                announcementResponseMessage = announcementResponseMessage
+            )
         }
     }
 }
@@ -188,7 +185,7 @@ fun SaveWorldButton(
 fun AnnounceDialog(
     makeAnnouncementClicked: (String) -> Unit,
     modifier: Modifier = Modifier,
-    announcementResponseMessage: SharedFlow<String>,
+    announcementResponseMessage: SharedFlow<String>?,
     uiState: OverviewUiState,
     onDismissRequest: () -> Unit,
 ) {
@@ -204,7 +201,7 @@ fun AnnounceDialog(
         ) {
             var announceResponse by rememberSaveable { mutableStateOf("") }
             LaunchedEffect("AnnounceResponse") {
-                announcementResponseMessage.collect { msg ->
+                announcementResponseMessage?.collect { msg ->
                     announceResponse = msg
                 }
             }
@@ -293,6 +290,7 @@ fun AnnounceDialogPreview() {
 }
 
 @Preview(showBackground = true,uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true)
 @Composable
 fun OverviewPreview() {
     PalMyTheme {
@@ -302,9 +300,9 @@ fun OverviewPreview() {
                     servername = "Klong's Server",
                     description = "We once sailed across the jade ocean. Only to be met by an orange whale with 2 thumbs."
                 ),
-                isInitialLoading = false
+                isInitialLoading = false,
             ),
-            announcementResponseMessage = MutableSharedFlow<String>()
+            saveWorldClicked = {}
         )
     }
 }
