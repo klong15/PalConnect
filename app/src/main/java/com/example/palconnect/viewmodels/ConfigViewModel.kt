@@ -114,12 +114,12 @@ class ConfigViewModel(
                     )
                 }
             }
+            setIsLoading(false)
         } else {
             //Navigate to next page
             navigationManager.navigateToAsync(Route.PopBackStack)
         }
 
-        setIsLoading(false)
     }
 
     private fun setIsLoading(loading: Boolean) {
