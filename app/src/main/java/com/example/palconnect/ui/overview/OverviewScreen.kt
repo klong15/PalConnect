@@ -75,7 +75,7 @@ fun OverviewScreen(
     }
 
     val uiState by viewModel.uiState.collectAsState()
-    topBarTitle.value = uiState.pageTitle
+    if(uiState.pageTitle.isNotEmpty()) topBarTitle.value = uiState.pageTitle
 
     // Content
     OverviewContent(
