@@ -1,6 +1,7 @@
 package com.example.palconnect.ui.overview
 
 import android.content.Context
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -30,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.UiMode
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.Lifecycle
@@ -38,9 +41,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.palconnect.NavBarAction
-import com.example.palconnect.Route
 import com.example.palconnect.models.ServerInfoModel
-import com.example.palconnect.ui.theme.PalConnectTheme
+import com.example.palconnect.ui.theme.PalMyTheme
 import com.example.palconnect.viewmodels.OverviewUiState
 import com.example.palconnect.viewmodels.OverviewViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -77,7 +79,7 @@ fun OverviewScreen(
     }
 
     val uiState by viewModel.uiState.collectAsState()
-    if(uiState.pageTitle.isNotEmpty()) topBarTitle.value = uiState.pageTitle
+    if (uiState.pageTitle.isNotEmpty()) topBarTitle.value = uiState.pageTitle
 
     // Listen for nav bar button clicks
     LaunchedEffect("OverviewNavActions") {
@@ -103,58 +105,63 @@ fun OverviewContent(
     announcementResponseMessage: SharedFlow<String>,
     makeAnnouncementClicked: (String) -> Unit = {},
     saveWorldClicked: (Context) -> Unit = {},
-    playersClicked: () -> Unit = {}
+    playersClicked: () -> Unit = {},
 ) {
     // Alert Dialog things
-    var openDialog by rememberSaveable() { mutableStateOf(false) }
-    if(uiState.isInitialLoading) {
-        Box (
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ){
-            CircularProgressIndicator(
-                modifier = Modifier.width(64.dp)
+    var openDialog by rememberSaveable { mutableStateOf(false) }
+    Surface (
+        modifier = modifier,
+        color = MaterialTheme.colorScheme.surface
+    ) {
+        if (uiState.isInitialLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.width(64.dp)
+                )
+            }
+        } else Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Text(
+                text = uiState.infoModel.servername,
+                style = MaterialTheme.typography.titleLarge,
             )
+            Text(
+                text = uiState.infoModel.description,
+                style = MaterialTheme.typography.titleLarge,
+            )
+            Text(
+                text = "Frame Time: ${uiState.metricsModel.serverframetime}",
+                style = MaterialTheme.typography.titleLarge,
+            )
+            ElevatedButton(
+                onClick = { openDialog = true }
+            ) {
+                Text("Announce Message")
+            }
+            SaveWorldButton(
+                enabled = uiState.saveWorldButtonEnable,
+                saveWorldClicked = saveWorldClicked
+            )
+            ElevatedButton(
+                onClick = playersClicked
+            ) {
+                Text(text = "Players: ${uiState.metricsModel.currentplayernum}")
+            }
         }
-    } else Column (
-        modifier = Modifier.fillMaxSize()
-    ){
-        Text(
-            text = uiState.infoModel.servername,
-            style = MaterialTheme.typography.titleLarge,
-        )
-        Text(
-            text = uiState.infoModel.description,
-            style = MaterialTheme.typography.titleLarge,
-        )
-        Text(
-            text = "Frame Time: ${uiState.metricsModel.serverframetime}",
-            style = MaterialTheme.typography.titleLarge,
-        )
-        ElevatedButton(
-            onClick = { openDialog = true }
-        ) {
-            Text("Announce Message")
-        }
-        SaveWorldButton(
-            enabled = uiState.saveWorldButtonEnable,
-            saveWorldClicked = saveWorldClicked
-        )
-        ElevatedButton(
-            onClick = playersClicked
-        ) {
-            Text( text = "Players: ${uiState.metricsModel.currentplayernum}")
-        }
-    }
 
-    when {
-        openDialog -> {
-            AnnounceDialog(
-                makeAnnouncementClicked = makeAnnouncementClicked,
-                onDismissRequest = { openDialog = false },
-                uiState = uiState,
-                announcementResponseMessage = announcementResponseMessage
-            )
+        when {
+            openDialog -> {
+                AnnounceDialog(
+                    makeAnnouncementClicked = makeAnnouncementClicked,
+                    onDismissRequest = { openDialog = false },
+                    uiState = uiState,
+                    announcementResponseMessage = announcementResponseMessage
+                )
+            }
         }
     }
 }
@@ -163,7 +170,7 @@ fun OverviewContent(
 fun SaveWorldButton(
     modifier: Modifier = Modifier,
     saveWorldClicked: (Context) -> Unit,
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) {
     var context = LocalContext.current
 
@@ -183,17 +190,18 @@ fun AnnounceDialog(
     modifier: Modifier = Modifier,
     announcementResponseMessage: SharedFlow<String>,
     uiState: OverviewUiState,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
 ) {
     Dialog(
         onDismissRequest = onDismissRequest,
     ) {
 
-        Card (
-            modifier = Modifier.fillMaxWidth()
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
                 .height(300.dp)
                 .padding(horizontal = 0.dp)
-        ){
+        ) {
             var announceResponse by rememberSaveable { mutableStateOf("") }
             LaunchedEffect("AnnounceResponse") {
                 announcementResponseMessage.collect { msg ->
@@ -201,28 +209,29 @@ fun AnnounceDialog(
                 }
             }
 
-            if(uiState.awaitingAnnounceResponse){
-                Box (
+            if (uiState.awaitingAnnounceResponse) {
+                Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
-                ){
+                ) {
                     CircularProgressIndicator(
                         modifier = Modifier.width(64.dp)
                     )
                 }
             } else {
 
-                if(announceResponse.isNotEmpty()) {
+                if (announceResponse.isNotEmpty()) {
 
-                    Box (
+                    Box(
                         modifier = Modifier.fillMaxSize(),
-                    ){
+                    ) {
                         Text(
                             text = announceResponse,
                             modifier = Modifier.align(Alignment.Center)
                         )
                         ElevatedButton(
-                            modifier = Modifier.padding(vertical = 16.dp)
+                            modifier = Modifier
+                                .padding(vertical = 16.dp)
                                 .height(40.dp)
                                 .align(Alignment.BottomCenter),
                             onClick = { onDismissRequest() }
@@ -255,7 +264,8 @@ fun AnnounceDialog(
                             textStyle = MaterialTheme.typography.titleLarge,
                         )
                         ElevatedButton(
-                            modifier = Modifier.padding(vertical = 16.dp)
+                            modifier = Modifier
+                                .padding(vertical = 16.dp)
                                 .height(40.dp),
                             enabled = enableButton,
                             onClick = { makeAnnouncementClicked(text) }
@@ -269,26 +279,30 @@ fun AnnounceDialog(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun AnnounceDialogPreview() {
-    AnnounceDialog(
-        uiState = OverviewUiState(awaitingAnnounceResponse = false),
-        onDismissRequest = {},
-        makeAnnouncementClicked = {},
-        announcementResponseMessage = MutableSharedFlow<String>()
-    )
+    PalMyTheme {
+        AnnounceDialog(
+            uiState = OverviewUiState(awaitingAnnounceResponse = false),
+            onDismissRequest = {},
+            makeAnnouncementClicked = {},
+            announcementResponseMessage = MutableSharedFlow<String>()
+        )
+    }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true,uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun OverviewPreview() {
-    PalConnectTheme {
-        OverviewContent(uiState = OverviewUiState(
+    PalMyTheme {
+        OverviewContent(
+            uiState = OverviewUiState(
                 infoModel = ServerInfoModel(
                     servername = "Klong's Server",
                     description = "We once sailed across the jade ocean. Only to be met by an orange whale with 2 thumbs."
-                )
+                ),
+                isInitialLoading = false
             ),
             announcementResponseMessage = MutableSharedFlow<String>()
         )

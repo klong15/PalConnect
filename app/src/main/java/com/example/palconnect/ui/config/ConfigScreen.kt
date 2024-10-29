@@ -16,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,17 +30,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.palconnect.PalConnectApp
 import com.example.palconnect.R
 import com.example.palconnect.conditional
-import com.example.palconnect.services.PalDataStore
-import com.example.palconnect.ui.theme.PalConnectTheme
+import com.example.palconnect.ui.theme.PalMyTheme
 import com.example.palconnect.viewmodels.ConfigUiState
 import com.example.palconnect.viewmodels.ConfigViewModel
-import com.example.palconnect.viewmodels.viewModelFactory
-import kotlinx.coroutines.flow.first
 
 @Composable
 fun ConfigScreen(
@@ -179,7 +173,7 @@ fun PasswordTextField(
 @Preview(showBackground = true)
 @Composable
 fun ConfigPreview() {
-    PalConnectTheme {
+    PalMyTheme {
         ConfigContent(uiState = ConfigUiState())
     }
 }

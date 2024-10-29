@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Dns
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,7 +35,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.palconnect.ui.config.ConfigScreen
 import com.example.palconnect.ui.overview.OverviewScreen
 import com.example.palconnect.ui.players.PlayersScreen
-import com.example.palconnect.ui.theme.PalConnectTheme
+import com.example.palconnect.ui.theme.PalMyTheme
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
@@ -101,7 +100,7 @@ fun NavigatorLaunchedEffect(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PalApp(modifier: Modifier = Modifier) {
-    PalConnectTheme {
+    PalMyTheme {
         val context = LocalContext.current
         val navController = rememberNavController()
         var topBarTitle = remember { mutableStateOf("") }
@@ -122,10 +121,7 @@ fun PalApp(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxSize(),
             topBar = {
                 TopAppBar(
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.primary,
-                    ),
+                    colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.primary),
                     title = {
                         Text(text = topBarTitle.value)
                     },
