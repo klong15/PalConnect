@@ -27,7 +27,7 @@ data class ConfigUiState(
     var ipField: String = "192.168.0.201:8212",
     var passwordField: String = "doob",
     var canSubmit: Boolean = ipField.isNotEmpty() && passwordField.isNotEmpty(),
-    var isLoading: Boolean = true,
+    var isLoading: Boolean = false,
     var infoModel: ServerInfoModel = ServerInfoModel(),
     var message: String = "",
 )
@@ -53,12 +53,6 @@ class ConfigViewModel(
 
     private val _uiState = MutableStateFlow(ConfigUiState())
     val uiState: StateFlow<ConfigUiState> = _uiState.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            initialLoad()
-        }
-    }
 
     fun ipTextChanged(newIp: String) {
         _uiState.update { currentState ->
@@ -92,19 +86,6 @@ class ConfigViewModel(
         }
     }
 
-    suspend fun initialLoad() {
-        println("Initial loading")
-
-        val ip = dataStore.ipFlow.first()
-        val password = dataStore.passwordFlow.first()
-        if(ip.isEmpty() || password.isEmpty()) {
-            setIsLoading(false)
-        } else {
-            palApiService.setServerInfo(ip, password)
-            getServerInfo(showError = false, )
-        }
-    }
-
     suspend fun getServerInfo(showError: Boolean = true, onSuccess: suspend () -> Unit = {}) {
 
         var hasError: Boolean = true;
@@ -129,10 +110,7 @@ class ConfigViewModel(
             }
         } else {
             //Navigate to next page
-            navigationManager.navigateToAsync(Route.Overview)
-            delay(1000)
-            setIsLoading(false)
-
+            navigationManager.navigateToAsync(Route.PopBackStack)
         }
 
         setIsLoading(false)

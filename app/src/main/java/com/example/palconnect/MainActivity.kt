@@ -57,7 +57,11 @@ fun NavigatorLaunchedEffect(
 ) {
     LaunchedEffect("NavigationEvents") {
         PalConnectApp.palModule.palNavigationManager.route.collect { screen ->
-            navController.navigate(screen)
+            if(screen == Route.PopBackStack) {
+                navController.popBackStack()
+            } else {
+                navController.navigate(screen)
+            }
         }
     }
 }
@@ -138,7 +142,7 @@ fun PalNavHost(
 
     NavHost (
         navController = navController,
-        startDestination = Route.Config,
+        startDestination = Route.Overview,
         modifier = modifier
     ) {
         composable<Route.Config>{

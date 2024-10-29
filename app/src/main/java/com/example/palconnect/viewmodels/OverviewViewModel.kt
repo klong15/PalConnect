@@ -13,7 +13,10 @@ import com.example.palconnect.Route
 import com.example.palconnect.models.ServerInfoModel
 import com.example.palconnect.models.ServerMetricsModel
 import com.example.palconnect.services.PalApiService
+import com.example.palconnect.services.PalDataStore
 import io.ktor.client.call.body
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -21,6 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -35,11 +39,13 @@ data class OverviewUiState(
     var errorMessage: String = "",
     var awaitingAnnounceResponse: Boolean = false,
     var saveWorldButtonEnable: Boolean = true,
+    var initialLoad: Boolean = true,
 )
 
 class OverviewViewModel(
     private val palApiService: PalApiService,
-    private val navigationManager: NavigationManager
+    private val navigationManager: NavigationManager,
+    private val dataStore: PalDataStore
 ): ViewModel() {
 
     companion object {
@@ -48,7 +54,8 @@ class OverviewViewModel(
             initializer {
                 OverviewViewModel(
                     PalConnectApp.palModule.palApiService,
-                    PalConnectApp.palModule.palNavigationManager
+                    PalConnectApp.palModule.palNavigationManager,
+                    PalConnectApp.palModule.palDataStore
                 )
             }
         }
@@ -65,18 +72,25 @@ class OverviewViewModel(
     fun onStart() {
         println("onStart")
 
-
         if(_uiState.value.infoModel.servername.isEmpty()) {
             println("Fetching Server Info!")
+
             viewModelScope.launch {
-                palApiService.getServerInfo() { response ->
-                    _uiState.update { currentState ->
-                        val infoModel: ServerInfoModel = Json.decodeFromString(response.body<String>())
-                        currentState.copy(
-                            pageTitle = infoModel.servername,
-                            infoModel = infoModel
-                        )
-                    }
+                val ip = dataStore.ipFlow.first()
+                val password = dataStore.passwordFlow.first()
+
+                val invalidConfig = suspend {
+                    dataStore.saveLoginConfig("", "")
+                    navigationManager.navigateToAsync(Route.Config)
+                }
+
+                if(ip.isEmpty() || password.isEmpty()) {
+                    invalidConfig()
+                } else {
+                    palApiService.setServerInfo(ip, password)
+                    updateServerInfo(
+                        onError = invalidConfig
+                    )
                 }
             }
         }
@@ -98,6 +112,23 @@ class OverviewViewModel(
 
     fun onStop() {
         updateJob?.cancel()
+    }
+
+    suspend fun updateServerInfo(onError: suspend () -> Unit = {}, onSuccess: suspend () -> Unit = {}) {
+        val response = palApiService.getServerInfo() { response ->
+            _uiState.update { currentState ->
+                val infoModel: ServerInfoModel = Json.decodeFromString(response.body<String>())
+                currentState.copy(
+                    pageTitle = infoModel.servername,
+                    infoModel = infoModel
+                )
+            }
+            onSuccess()
+        }
+
+        if(response == null || response.status != HttpStatusCode.OK) {
+            onError()
+        }
     }
 
     fun makeAnnouncementClicked(message: String) {

@@ -1,6 +1,7 @@
 package com.example.palconnect
 
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.serialization.Serializable
@@ -14,6 +15,9 @@ sealed interface Route {
 
     @Serializable
     data object Players : Route
+
+    @Serializable
+    data object PopBackStack: Route
 }
 
 var Route.name: String?
