@@ -2,7 +2,6 @@ package com.example.palconnect.ui.overview
 
 import android.content.Context
 import android.content.res.Configuration
-import android.icu.number.Precision
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,12 +18,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -58,13 +55,13 @@ import com.example.palconnect.R
 import com.example.palconnect.conditional
 import com.example.palconnect.models.ServerInfoModel
 import com.example.palconnect.models.ServerMetricsModel
-import com.example.palconnect.ui.overview.OverviewPortrait
 import com.example.palconnect.ui.theme.PalMyTheme
 import com.example.palconnect.viewmodels.OverviewUiState
 import com.example.palconnect.viewmodels.OverviewViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import java.util.Locale
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 
 @Composable
 fun OverviewScreen(
@@ -132,13 +129,37 @@ fun OverviewContent(
 
     var openDialog = rememberSaveable { mutableStateOf(false) }
 
-    OverviewPortrait(
-        modifier = modifier,
-        uiState = uiState,
-        saveWorldClicked = saveWorldClicked,
-        playersClicked = playersClicked,
-        openDialog = openDialog
-    )
+    if (uiState.isInitialLoading) {
+        Box(
+            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.width(64.dp)
+            )
+        }
+    } else {
+        when (windowSize.widthSizeClass) {
+            WindowWidthSizeClass.Compact -> {
+                OverviewPortrait(
+                    modifier = modifier,
+                    uiState = uiState,
+                    saveWorldClicked = saveWorldClicked,
+                    playersClicked = playersClicked,
+                    openDialog = openDialog
+                )
+            }
+
+            WindowWidthSizeClass.Expanded -> {
+                OverviewLandscape(
+                    modifier = modifier,
+                    uiState = uiState,
+                    saveWorldClicked = saveWorldClicked,
+                    playersClicked = playersClicked,
+                    openDialog = openDialog
+                )
+            }
+        }
+    }
 
     when {
         openDialog.value -> {
@@ -153,6 +174,17 @@ fun OverviewContent(
 }
 
 @Composable
+fun OverviewLandscape(
+    modifier: Modifier = Modifier,
+    uiState: OverviewUiState,
+    openDialog: MutableState<Boolean>?,
+    saveWorldClicked: (Context) -> Unit = { context -> },
+    playersClicked: () -> Unit = {},
+) {
+
+}
+
+@Composable
 fun OverviewPortrait(
     modifier: Modifier = Modifier,
     uiState: OverviewUiState,
@@ -160,15 +192,7 @@ fun OverviewPortrait(
     saveWorldClicked: (Context) -> Unit = { context -> },
     playersClicked: () -> Unit = {},
 ) {
-    if (uiState.isInitialLoading) {
-        Box(
-            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier.width(64.dp)
-            )
-        }
-    } else Column(
+    Column(
         modifier = modifier.fillMaxSize()
     ) {
         ServerInfo(
@@ -282,7 +306,7 @@ fun MetricsInfo(
                 }
                 MetricItem(
                     metric = "Server Uptime",
-                    value = "$upTime",
+                    value = "$upTime seconds",
                     useWeight = false
                 )
             }

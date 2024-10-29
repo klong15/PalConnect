@@ -5,5 +5,5 @@
     <string name="error_load_players">Error: Couldn\'t load players</string>
     <string name="config">Config</string>
     <string name="actions">Actions</string>
-    <string name="metrics">Metrics</string>
+    <string name="metrics">Live Metrics</string>
 </resources>
