@@ -2,6 +2,7 @@ package com.example.palconnect
 
 import android.content.Context
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -11,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ChangeCircle
+import androidx.compose.material.icons.filled.ChangeHistory
 import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -41,6 +44,10 @@ import kotlinx.coroutines.flow.SharedFlow
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -108,7 +115,11 @@ fun PalApp(
     windowSize: WindowSizeClass,
     modifier: Modifier = Modifier
 ) {
-    PalMyTheme {
+    var dynamicColor = PalConnectApp.palModule.palDataStore.dynamicColorFlow.collectAsState(false)
+
+    PalMyTheme(
+        dynamicColor = dynamicColor.value
+    ) {
         val context = LocalContext.current
         val navController = rememberNavController()
         var topBarTitle = remember { mutableStateOf("") }
@@ -141,16 +152,21 @@ fun PalApp(
                                 .alpha(if (showBackIcon.value) 1f else 0f)
                                 .clickable(
                                     enabled = showBackIcon.value,
-                                  onClick = {
-                                      curScreenBackButton.value?.invoke() ?: navController.popBackStack()
-                                  }
+                                    onClick = {
+                                        curScreenBackButton.value?.invoke()
+                                            ?: navController.popBackStack()
+                                    }
                                 )
                                 .padding(4.dp)
 
                         )
                     },
                     actions = {
-                        NavBarActions(screenType.value, actionClickFlow)
+                        NavBarActions(
+                            route = screenType.value,
+                            actionsFlow = actionClickFlow,
+                            dynamicColor = dynamicColor.value
+                        )
                     }
                 )
             },
@@ -206,8 +222,33 @@ fun PalNavHost(
 @Composable
 fun NavBarActions(
     route: Route,
-    actionsFlow: MutableSharedFlow<NavBarAction>
+    actionsFlow: MutableSharedFlow<NavBarAction>,
+    dynamicColor: Boolean
 ) {
+    val composableScope =  rememberCoroutineScope()
+    val context = LocalContext.current
+    Icon(
+        imageVector = if(dynamicColor) Icons.Filled.ChangeHistory else Icons.Filled.ChangeCircle,
+        contentDescription = "Localized description",
+        modifier = Modifier
+            .clickable(
+                enabled = true,
+                onClick = {
+                    composableScope.launch {
+                        PalConnectApp.palModule.palDataStore.saveDynamicColorPreference(!dynamicColor)
+                    }
+                    val msgId = if (!dynamicColor) R.string.dynamic_colors_on_toast else R.string.dynamic_colors_off_toast
+                    Toast
+                        .makeText(
+                            context,
+                            context.getString(msgId),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                }
+            )
+            .padding(horizontal = 8.dp)
+    )
+    
     if(route == Route.Overview){
         Icon(
             imageVector = Icons.Filled.Dns,

@@ -6,4 +6,6 @@
     <string name="config">Config</string>
     <string name="actions">Actions</string>
     <string name="metrics">Live Metrics</string>
+    <string name="dynamic_colors_on_toast">Dynamic Colors are on!</string>
+    <string name="dynamic_colors_off_toast">Dynamic Colors are off!</string>
 </resources>
