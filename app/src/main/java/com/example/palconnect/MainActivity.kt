@@ -7,15 +7,14 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Dns
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -24,10 +23,8 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
@@ -35,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.palconnect.ui.config.ConfigScreen
 import com.example.palconnect.ui.overview.OverviewScreen
@@ -67,11 +63,12 @@ fun NavigatorLaunchedEffect(
     }
 }
 
-fun getBackButtonInfoByRoute(
+fun getInfoByRoute(
     context: Context,
     route:String?,
     showBackIcon: MutableState<Boolean>,
-    screenBackButtonCallback: MutableState<(() -> Unit)?>
+    screenBackButtonCallback: MutableState<(() -> Unit)?>,
+    screenType: MutableState<Route>
 ) {
     if(route == null) return
 
@@ -80,19 +77,17 @@ fun getBackButtonInfoByRoute(
         Route.Config.name -> {
             screenBackButtonCallback.value = Route.Config.backButtonCallback
             showBackIcon.value = Route.Config.showBackButtonInNavBar
+            screenType.value = Route.Config
         }
         Route.Overview.name -> {
             screenBackButtonCallback.value = Route.Overview.backButtonCallback
             showBackIcon.value = Route.Overview.showBackButtonInNavBar
+            screenType.value = Route.Overview
         }
         Route.Players.name -> {
             screenBackButtonCallback.value = Route.Players.backButtonCallback
             showBackIcon.value = Route.Players.showBackButtonInNavBar
-        }
-        // other cases
-        else -> {
-            screenBackButtonCallback.value = null
-            showBackIcon.value = true;
+            screenType.value = Route.Players
         }
     }
 }
@@ -106,11 +101,12 @@ fun PalApp(modifier: Modifier = Modifier) {
         var topBarTitle = remember { mutableStateOf("") }
         var showBackIcon = remember { mutableStateOf(true) }
         var curScreenBackButton = remember { mutableStateOf<(()->Unit)?>(null) }
+        var screenType = remember { mutableStateOf<Route>(Route.Config) }
 
         LaunchedEffect(navController) {
             navController.currentBackStackEntryFlow.collect { backStackEntry ->
                 // You can map the title based on the route using:
-                getBackButtonInfoByRoute(context, backStackEntry.destination.route, showBackIcon, curScreenBackButton)
+                getInfoByRoute(context, backStackEntry.destination.route, showBackIcon, curScreenBackButton, screenType)
             }
         }
 
@@ -140,6 +136,9 @@ fun PalApp(modifier: Modifier = Modifier) {
                                 .padding(4.dp)
 
                         )
+                    },
+                    actions = {
+                        NavBarActions(screenType.value)
                     }
                 )
             },
@@ -186,7 +185,21 @@ fun PalNavHost(
     }
 }
 
-
+@Composable
+fun NavBarActions(route: Route) {
+    if(route == Route.Overview){
+        Icon(
+            imageVector = Icons.Filled.Dns,
+            contentDescription = "Localized description",
+            modifier = Modifier
+                .clickable(
+                    enabled = true,
+                    onClick = { PalConnectApp.palModule.palNavigationManager.navigateTo(Route.Config) }
+                )
+                .padding(horizontal = 8.dp)
+        )
+    }
+}
 
 
 

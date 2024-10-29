@@ -54,6 +54,12 @@ class ConfigViewModel(
     private val _uiState = MutableStateFlow(ConfigUiState())
     val uiState: StateFlow<ConfigUiState> = _uiState.asStateFlow()
 
+    init {
+        viewModelScope.launch {
+            dataStore.saveLoginConfig("", "")
+        }
+    }
+
     fun ipTextChanged(newIp: String) {
         _uiState.update { currentState ->
             currentState.copy(
