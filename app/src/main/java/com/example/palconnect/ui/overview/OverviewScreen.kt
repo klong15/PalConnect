@@ -237,6 +237,7 @@ fun AnnounceDialog(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         var text by rememberSaveable { mutableStateOf("") }
+                        var enableButton by rememberSaveable { mutableStateOf(false) }
                         TextField(
 
                             modifier = Modifier
@@ -247,12 +248,16 @@ fun AnnounceDialog(
                             placeholder = {
                                 Text("Announcement")
                             },
-                            onValueChange = { newText -> text = newText },
+                            onValueChange = { newText ->
+                                text = newText
+                                enableButton = newText.isNotEmpty()
+                            },
                             textStyle = MaterialTheme.typography.titleLarge,
                         )
                         ElevatedButton(
                             modifier = Modifier.padding(vertical = 16.dp)
                                 .height(40.dp),
+                            enabled = enableButton,
                             onClick = { makeAnnouncementClicked(text) }
                         ) {
                             Text("Make Announcement")
