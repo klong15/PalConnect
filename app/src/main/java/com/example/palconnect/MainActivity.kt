@@ -38,13 +38,18 @@ import com.example.palconnect.ui.players.PlayersScreen
 import com.example.palconnect.ui.theme.PalMyTheme
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            PalApp()
+            val windowSizeClass = calculateWindowSizeClass(this)
+            PalApp(windowSizeClass)
         }
     }
 }
@@ -99,7 +104,10 @@ fun NavigatorLaunchedEffect(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PalApp(modifier: Modifier = Modifier) {
+fun PalApp(
+    windowSize: WindowSizeClass,
+    modifier: Modifier = Modifier
+) {
     PalMyTheme {
         val context = LocalContext.current
         val navController = rememberNavController()
@@ -152,8 +160,9 @@ fun PalApp(modifier: Modifier = Modifier) {
             PalNavHost(
                 navController = navController,
                 topBarTitle = topBarTitle,
-                actionClickFlow,
-                modifier.padding(innerPadding)
+                navBarActionsFlow = actionClickFlow,
+                modifier = modifier.padding(innerPadding),
+                windowSize = windowSize
             )
         }
     }
@@ -164,6 +173,7 @@ fun PalNavHost(
     navController: NavHostController,
     topBarTitle: MutableState<String>,
     navBarActionsFlow: SharedFlow<NavBarAction>,
+    windowSize: WindowSizeClass,
     modifier: Modifier = Modifier
 ) {
 
@@ -181,7 +191,8 @@ fun PalNavHost(
         composable<Route.Overview> {
             OverviewScreen(
                 topBarTitle = topBarTitle,
-                navBarActionsFlow = navBarActionsFlow
+                navBarActionsFlow = navBarActionsFlow,
+                windowSize = windowSize
             )
         }
         composable<Route.Players> {

@@ -25,6 +25,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.contentColorFor
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -57,6 +58,7 @@ import com.example.palconnect.R
 import com.example.palconnect.conditional
 import com.example.palconnect.models.ServerInfoModel
 import com.example.palconnect.models.ServerMetricsModel
+import com.example.palconnect.ui.overview.OverviewPortrait
 import com.example.palconnect.ui.theme.PalMyTheme
 import com.example.palconnect.viewmodels.OverviewUiState
 import com.example.palconnect.viewmodels.OverviewViewModel
@@ -68,6 +70,7 @@ import java.util.Locale
 fun OverviewScreen(
     modifier: Modifier = Modifier,
     topBarTitle: MutableState<String>,
+    windowSize: WindowSizeClass,
     navBarActionsFlow: SharedFlow<NavBarAction>,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     viewModel: OverviewViewModel = viewModel(
@@ -111,12 +114,14 @@ fun OverviewScreen(
         announcementResponseMessage = viewModel.announcementResponseMessage,
         saveWorldClicked = viewModel::saveWorldClicked,
         playersClicked = viewModel::playersClicked,
+        windowSize = windowSize
     )
 }
 
 @Composable
 fun OverviewContent(
     modifier: Modifier = Modifier,
+    windowSize: WindowSizeClass,
     uiState: OverviewUiState,
     announcementResponseMessage: SharedFlow<String>? = null,
     makeAnnouncementClicked: (String) -> Unit = {},
@@ -127,6 +132,34 @@ fun OverviewContent(
 
     var openDialog = rememberSaveable { mutableStateOf(false) }
 
+    OverviewPortrait(
+        modifier = modifier,
+        uiState = uiState,
+        saveWorldClicked = saveWorldClicked,
+        playersClicked = playersClicked,
+        openDialog = openDialog
+    )
+
+    when {
+        openDialog.value -> {
+            AnnounceDialog(
+                makeAnnouncementClicked = makeAnnouncementClicked,
+                onDismissRequest = { openDialog.value = false },
+                uiState = uiState,
+                announcementResponseMessage = announcementResponseMessage
+            )
+        }
+    }
+}
+
+@Composable
+fun OverviewPortrait(
+    modifier: Modifier = Modifier,
+    uiState: OverviewUiState,
+    openDialog: MutableState<Boolean>?,
+    saveWorldClicked: (Context) -> Unit = { context -> },
+    playersClicked: () -> Unit = {},
+) {
     if (uiState.isInitialLoading) {
         Box(
             modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
@@ -136,7 +169,7 @@ fun OverviewContent(
             )
         }
     } else Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         ServerInfo(
             modifier = Modifier, description = uiState.infoModel.description
@@ -160,23 +193,12 @@ fun OverviewContent(
             playersClicked = playersClicked
         )
     }
-
-    when {
-        openDialog.value -> {
-            AnnounceDialog(
-                makeAnnouncementClicked = makeAnnouncementClicked,
-                onDismissRequest = { openDialog.value = false },
-                uiState = uiState,
-                announcementResponseMessage = announcementResponseMessage
-            )
-        }
-    }
 }
 
 @Composable
 fun ActionsSection(
     modifier: Modifier = Modifier,
-    openDialog: MutableState<Boolean>,
+    openDialog: MutableState<Boolean>?,
     saveWorldButtonEnable: Boolean,
     saveWorldClicked: (Context) -> Unit = { context -> },
     playersClicked: () -> Unit = {},
@@ -189,7 +211,7 @@ fun ActionsSection(
         )
         Row {
             ElevatedButton(
-                onClick = { openDialog.value = true },
+                onClick = { openDialog?.value = true },
                 modifier = Modifier
                     .weight(1f)
                     .padding(start = 8.dp, end = 4.dp)
@@ -443,16 +465,20 @@ fun AnnounceDialogPreview() {
 fun OverviewPreview() {
     PalMyTheme {
         Surface {
-            OverviewContent(uiState = OverviewUiState(
-                infoModel = ServerInfoModel(
-                    servername = "Klong's Server",
-                    description = "We once sailed across the jade ocean. Only to be met by an orange whale with 2 thumbs."
+            OverviewPortrait(
+                uiState = OverviewUiState(
+                    infoModel = ServerInfoModel(
+                        servername = "Klong's Server",
+                        description = "We once sailed across the jade ocean. Only to be met by an orange whale with 2 thumbs."
+                    ),
+                    metricsModel = ServerMetricsModel(
+                        serverframetime = 12.153422f
+                    ),
+                    isInitialLoading = false,
                 ),
-                metricsModel = ServerMetricsModel(
-                    serverframetime = 12.153422f
-                ),
-                isInitialLoading = false,
-            ), saveWorldClicked = {})
+                saveWorldClicked = {},
+                openDialog = null
+            )
         }
     }
 }
