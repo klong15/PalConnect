@@ -3,6 +3,7 @@ package com.example.palconnect
 import android.app.Application
 import android.content.Context
 import com.example.palconnect.services.PalApiService
+import com.example.palconnect.services.PalDataStore
 
 class PalConnectApp: Application() {
 
@@ -26,5 +27,9 @@ class PalModule(
 
     val palNavigationManager: NavigationManager by lazy {
         NavigationManager()
+    }
+
+    val palDataStore: PalDataStore by lazy {
+        PalDataStore(appContext)
     }
 }

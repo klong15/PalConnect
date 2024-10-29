@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -24,17 +25,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.palconnect.PalConnectApp
 import com.example.palconnect.conditional
+import com.example.palconnect.services.PalDataStore
 import com.example.palconnect.ui.theme.PalConnectTheme
 import com.example.palconnect.viewmodels.ConfigUiState
 import com.example.palconnect.viewmodels.ConfigViewModel
 import com.example.palconnect.viewmodels.viewModelFactory
+import kotlinx.coroutines.flow.first
 
 @Composable
 fun ConfigScreen(
@@ -44,16 +49,16 @@ fun ConfigScreen(
         factory = ConfigViewModel.Factory
     ),
 ) {
-//    val modelState by viewModel.model.observeAsState()
-    val configUiState by viewModel.configUiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     val focusRequester = remember { FocusRequester() }
 
-//    val uiState by viewModel.uiState.collectAsState()
     topBarTitle.value = "Configzz"
+    val context = LocalContext.current
+
 
     ConfigContent(
         modifier = modifier,
-        configUiState = configUiState,
+        uiState = uiState,
         onIpTextChange = { text ->
             viewModel.ipTextChanged(text)
         },
@@ -74,7 +79,7 @@ fun ConfigScreen(
 @Composable
 fun ConfigContent(
     modifier: Modifier = Modifier,
-    configUiState: ConfigUiState,
+    uiState: ConfigUiState,
     onIpTextChange: (String) -> Unit = {},
     onPasswordTextChange: (String) -> Unit = {},
     onIpSubmit: () -> Unit = {},
@@ -87,7 +92,7 @@ fun ConfigContent(
         verticalArrangement = Arrangement.Center,
         modifier = modifier.fillMaxSize().padding(horizontal = 64.dp)
     ) {
-        if(configUiState.isLoading) {
+        if(uiState.isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier.width(64.dp),
             )
@@ -99,13 +104,13 @@ fun ConfigContent(
             )
 
             IpTextField(
-                text = configUiState.ipField,
+                text = uiState.ipField,
                 onTextChange = onIpTextChange,
                 onSubmit = onIpSubmit
             )
             Spacer(Modifier.height(4.dp))
             PasswordTextField(
-                text = configUiState.passwordField,
+                text = uiState.passwordField,
                 onTextChange = onPasswordTextChange,
                 onSubmit = onPasswordSubmit,
                 modifier = Modifier.conditional(passwordFocusRequester != null) {
@@ -113,14 +118,14 @@ fun ConfigContent(
                 }
             )
             ElevatedButton(
-                enabled = configUiState.canSubmit,
+                enabled = uiState.canSubmit,
                 onClick = onButtonSubmit,
                 modifier = Modifier.padding(vertical = 16.dp)
             ) {
                 Text("Submit")
             }
-            Text(text = configUiState.infoModel.servername)
-            Text(text = configUiState.message)
+            Text(text = uiState.infoModel.servername)
+            Text(text = uiState.message)
         }
     }
 }
@@ -171,6 +176,6 @@ fun PasswordTextField(
 @Composable
 fun ConfigPreview() {
     PalConnectTheme {
-        ConfigContent(configUiState = ConfigUiState())
+        ConfigContent(uiState = ConfigUiState())
     }
 }

@@ -10,12 +10,14 @@ import com.example.palconnect.PalConnectApp
 import com.example.palconnect.Route
 import com.example.palconnect.models.ServerInfoModel
 import com.example.palconnect.services.PalApiService
+import com.example.palconnect.services.PalDataStore
 import io.ktor.client.call.body
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -25,14 +27,15 @@ data class ConfigUiState(
     var ipField: String = "192.168.0.201:8212",
     var passwordField: String = "doob",
     var canSubmit: Boolean = ipField.isNotEmpty() && passwordField.isNotEmpty(),
-    var isLoading: Boolean = false,
+    var isLoading: Boolean = true,
     var infoModel: ServerInfoModel = ServerInfoModel(),
-    var message: String = ""
+    var message: String = "",
 )
 
 class ConfigViewModel(
     private val palApiService: PalApiService,
-    private val navigationManager: NavigationManager
+    private val navigationManager: NavigationManager,
+    private val dataStore: PalDataStore
 ): ViewModel() {
 
     companion object {
@@ -41,17 +44,24 @@ class ConfigViewModel(
             initializer {
                 ConfigViewModel(
                     PalConnectApp.palModule.palApiService,
-                    PalConnectApp.palModule.palNavigationManager
+                    PalConnectApp.palModule.palNavigationManager,
+                    PalConnectApp.palModule.palDataStore
                 )
             }
         }
     }
 
-    private val _configUiState = MutableStateFlow(ConfigUiState())
-    val configUiState: StateFlow<ConfigUiState> = _configUiState.asStateFlow()
+    private val _uiState = MutableStateFlow(ConfigUiState())
+    val uiState: StateFlow<ConfigUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            initialLoad()
+        }
+    }
 
     fun ipTextChanged(newIp: String) {
-        _configUiState.update { currentState ->
+        _uiState.update { currentState ->
             currentState.copy(
                 ipField = newIp,
                 canSubmit = newIp.isNotEmpty() && currentState.passwordField.isNotEmpty()
@@ -60,7 +70,7 @@ class ConfigViewModel(
     }
 
     fun passwordTextChanged(newPassword: String) {
-        _configUiState.update { currentState ->
+        _uiState.update { currentState ->
             currentState.copy(
                 passwordField = newPassword,
                 canSubmit = currentState.ipField.isNotEmpty() && newPassword.isNotEmpty()
@@ -69,54 +79,70 @@ class ConfigViewModel(
     }
 
     fun submitted() {
-        if(!_configUiState.value.canSubmit) return
-//
-        palApiService.setServerInfo(_configUiState.value.ipField, _configUiState.value.passwordField)
-        getServerInfo()
-    }
+        if(!_uiState.value.canSubmit) return
 
-    fun getServerInfo() {
+        val ip = _uiState.value.ipField
+        val password = _uiState.value.passwordField
+        palApiService.setServerInfo(ip, password)
+
         viewModelScope.launch {
-            var hasError: Boolean = false;
-            try {
-                setIsLoading(true)
-                val result = palApiService.getServerInfo()
-                if(result?.status == HttpStatusCode.OK) {
-
-                    _configUiState.update { currentState ->
-                        currentState.copy(
-                            infoModel = Json.decodeFromString(result.body<String>())
-                        )
-                    }
-                } else {
-                    hasError = true;
-                }
-            } catch (e: Exception){
-                hasError = true
+            getServerInfo {
+                dataStore.saveLoginConfig(ip, password)
             }
-
-            if(hasError) {
-                _configUiState.update { currentState ->
-                    currentState.copy(
-                        message = if (hasError) "ERROR" else _configUiState.value.infoModel.description
-                    )
-                }
-            } else {
-                //Navigate to next page
-                navigationManager.navigateToAsync(Route.Overview)
-                delay(1000)
-                setIsLoading(false)
-
-            }
-
-            setIsLoading(false)
         }
     }
 
+    suspend fun initialLoad() {
+        println("Initial loading")
+
+        val ip = dataStore.ipFlow.first()
+        val password = dataStore.passwordFlow.first()
+        if(ip.isEmpty() || password.isEmpty()) {
+            setIsLoading(false)
+        } else {
+            palApiService.setServerInfo(ip, password)
+            getServerInfo(showError = false, )
+        }
+    }
+
+    suspend fun getServerInfo(showError: Boolean = true, onSuccess: suspend () -> Unit = {}) {
+
+        var hasError: Boolean = true;
+        setIsLoading(true)
+        val response = palApiService.getServerInfo() { result ->
+            hasError = false
+            _uiState.update { currentState ->
+                currentState.copy(
+                    infoModel = Json.decodeFromString(result.body<String>())
+                )
+            }
+            onSuccess()
+        }
+
+        if(hasError) {
+            if(showError) {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        message = "Error validating server"
+                    )
+                }
+            }
+        } else {
+            //Navigate to next page
+            navigationManager.navigateToAsync(Route.Overview)
+            delay(1000)
+            setIsLoading(false)
+
+        }
+
+        setIsLoading(false)
+    }
+
     private fun setIsLoading(loading: Boolean) {
-        _configUiState.update { currentState ->
+        _uiState.update { currentState ->
             currentState.copy(
                 isLoading = loading,
+                message = if (loading) "" else currentState.message,
             )
         }
     }
