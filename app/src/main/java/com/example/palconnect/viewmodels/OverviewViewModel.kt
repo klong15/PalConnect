@@ -73,7 +73,7 @@ class OverviewViewModel(
     fun onStart() {
         println("onStart")
 
-        if(_uiState.value.infoModel.servername.isEmpty()) {
+        if(uiState.value.isInitialLoading) {
             println("Fetching Server Info!")
 
             viewModelScope.launch {
@@ -91,7 +91,13 @@ class OverviewViewModel(
                     palApiService.setServerInfo(ip, password)
                     updateServerInfo(
                         onError = invalidConfig
-                    )
+                    ) {
+                        _uiState.update { currentState ->
+                            currentState.copy(
+                                isInitialLoading = false
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -187,5 +193,12 @@ class OverviewViewModel(
 
     fun navBarActionsClicked(type: NavBarAction) {
         println("Action bar type $type clicked!")
+        _uiState.update { currentState ->
+            currentState.copy(
+                isInitialLoading = true
+            )
+        }
+
+        navigationManager.navigateTo(Route.Config)
     }
 }

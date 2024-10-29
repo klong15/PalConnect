@@ -116,8 +116,7 @@ fun OverviewContent(
                 modifier = Modifier.width(64.dp)
             )
         }
-    }
-    Column (
+    } else Column (
         modifier = Modifier.fillMaxSize()
     ){
         Text(
