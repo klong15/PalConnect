@@ -7,17 +7,37 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.serialization.Serializable
 
 sealed interface Route {
-    @Serializable
-    data object Config : Route
+
+    val backButtonCallback: (() -> Unit)?
+    val showBackButtonInNavBar: Boolean
 
     @Serializable
-    data object Overview : Route
+    data object Config : Route {
+        override val showBackButtonInNavBar: Boolean = false
+        override val backButtonCallback: (() -> Unit)?
+            get() = {  }
+    }
 
     @Serializable
-    data object Players : Route
+    data object Overview : Route {
+        override val showBackButtonInNavBar: Boolean = false
+        override val backButtonCallback: (() -> Unit)?
+            get() = null
+    }
 
     @Serializable
-    data object PopBackStack: Route
+    data object Players : Route {
+        override val showBackButtonInNavBar: Boolean = true
+        override val backButtonCallback: (() -> Unit)?
+            get() = null
+    }
+
+    @Serializable
+    data object PopBackStack: Route {
+        override val showBackButtonInNavBar: Boolean = false
+        override val backButtonCallback: (() -> Unit)?
+            get() = null
+    }
 }
 
 var Route.name: String?

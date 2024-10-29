@@ -3,6 +3,7 @@ package com.example.palconnect
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
@@ -66,15 +67,33 @@ fun NavigatorLaunchedEffect(
     }
 }
 
-fun getTitleByRoute(context: Context, route:String?): String {
-    if(route == null) return ""
+fun getBackButtonInfoByRoute(
+    context: Context,
+    route:String?,
+    showBackIcon: MutableState<Boolean>,
+    screenBackButtonCallback: MutableState<(() -> Unit)?>
+) {
+    if(route == null) return
+
     val a = Route.Config::class.qualifiedName
-    return when (route) {
-        Route.Config.name -> "Config"
-        Route.Overview.name -> "Overview"
-        Route.Players.name -> "Players"
+    when (route) {
+        Route.Config.name -> {
+            screenBackButtonCallback.value = Route.Config.backButtonCallback
+            showBackIcon.value = Route.Config.showBackButtonInNavBar
+        }
+        Route.Overview.name -> {
+            screenBackButtonCallback.value = Route.Overview.backButtonCallback
+            showBackIcon.value = Route.Overview.showBackButtonInNavBar
+        }
+        Route.Players.name -> {
+            screenBackButtonCallback.value = Route.Players.backButtonCallback
+            showBackIcon.value = Route.Players.showBackButtonInNavBar
+        }
         // other cases
-        else -> context.getString(R.string.error_load_players)
+        else -> {
+            screenBackButtonCallback.value = null
+            showBackIcon.value = true;
+        }
     }
 }
 
@@ -85,13 +104,13 @@ fun PalApp(modifier: Modifier = Modifier) {
         val context = LocalContext.current
         val navController = rememberNavController()
         var topBarTitle = remember { mutableStateOf("") }
-        var showBackIcon by remember { mutableStateOf(true) }
+        var showBackIcon = remember { mutableStateOf(true) }
+        var curScreenBackButton = remember { mutableStateOf<(()->Unit)?>(null) }
 
         LaunchedEffect(navController) {
             navController.currentBackStackEntryFlow.collect { backStackEntry ->
                 // You can map the title based on the route using:
-//                topBarTitle.value = getTitleByRoute(context, backStackEntry.destination.route)
-                showBackIcon = navController.previousBackStackEntry != null
+                getBackButtonInfoByRoute(context, backStackEntry.destination.route, showBackIcon, curScreenBackButton)
             }
         }
 
@@ -110,10 +129,13 @@ fun PalApp(modifier: Modifier = Modifier) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Localized description",
-                            modifier = Modifier.alpha(if(showBackIcon) 1f else 0f)
+                            modifier = Modifier
+                                .alpha(if (showBackIcon.value) 1f else 0f)
                                 .clickable(
-                                    enabled = showBackIcon,
-                                    onClick = { navController.popBackStack() }
+                                    enabled = showBackIcon.value,
+                                  onClick = {
+                                      curScreenBackButton.value?.invoke() ?: navController.popBackStack()
+                                  }
                                 )
                                 .padding(4.dp)
 
@@ -146,6 +168,7 @@ fun PalNavHost(
         modifier = modifier
     ) {
         composable<Route.Config>{
+            BackHandler(true) { Route.Config.backButtonCallback }
             ConfigScreen(
                 topBarTitle = topBarTitle
             )
