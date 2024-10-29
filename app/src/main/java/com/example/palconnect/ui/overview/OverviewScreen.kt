@@ -3,6 +3,7 @@ package com.example.palconnect.ui.overview
 import android.content.Context
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +15,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
@@ -149,7 +152,7 @@ fun OverviewContent(
                 )
             }
 
-            WindowWidthSizeClass.Expanded -> {
+            WindowWidthSizeClass.Expanded, WindowWidthSizeClass.Medium -> {
                 OverviewLandscape(
                     modifier = modifier,
                     uiState = uiState,
@@ -182,6 +185,39 @@ fun OverviewLandscape(
     playersClicked: () -> Unit = {},
 ) {
 
+    Row {
+        val scrollState = rememberScrollState()
+
+        ServerInfo(
+            modifier = Modifier
+                .width(200.dp)
+            , description = uiState.infoModel.description
+        )
+        Column (
+            modifier = Modifier
+                .verticalScroll(scrollState)
+                .weight(1f)
+        ){
+            MetricsInfo(
+                curPlayers = uiState.metricsModel.currentplayernum,
+                fps = uiState.metricsModel.serverfps,
+                frameTime = uiState.metricsModel.serverframetime,
+                maxPlayers = uiState.metricsModel.maxplayernum,
+                upTime = uiState.metricsModel.uptime,
+                modifier = Modifier.padding(horizontal = 8.dp),
+            )
+            Spacer(
+                modifier = Modifier.height(32.dp)
+            )
+            ActionsSection(
+                openDialog = openDialog,
+                saveWorldButtonEnable = uiState.saveWorldButtonEnable,
+                modifier = Modifier,
+                saveWorldClicked = saveWorldClicked,
+                playersClicked = playersClicked
+            )
+        }
+    }
 }
 
 @Composable
@@ -345,8 +381,10 @@ fun ServerInfo(
     modifier: Modifier = Modifier,
     description: String,
 ) {
+    val scrollState = rememberScrollState()
     Column(
         modifier = modifier.padding(16.dp)
+            .verticalScroll(scrollState)
     ) {
         Image(
             painter = painterResource(R.drawable.server_image),
@@ -486,10 +524,33 @@ fun AnnounceDialogPreview() {
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Preview(showBackground = true)
 @Composable
-fun OverviewPreview() {
+fun OverviewPortraitPreview() {
     PalMyTheme {
         Surface {
             OverviewPortrait(
+                uiState = OverviewUiState(
+                    infoModel = ServerInfoModel(
+                        servername = "Klong's Server",
+                        description = "We once sailed across the jade ocean. Only to be met by an orange whale with 2 thumbs."
+                    ),
+                    metricsModel = ServerMetricsModel(
+                        serverframetime = 12.153422f
+                    ),
+                    isInitialLoading = false,
+                ),
+                saveWorldClicked = {},
+                openDialog = null
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 800, heightDp = 400)
+@Composable
+fun OverviewLandscapePreview() {
+    PalMyTheme {
+        Surface {
+            OverviewLandscape(
                 uiState = OverviewUiState(
                     infoModel = ServerInfoModel(
                         servername = "Klong's Server",
