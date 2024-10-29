@@ -4,4 +4,6 @@
     <string name="show_more">Show More</string>
     <string name="error_load_players">Error: Couldn\'t load players</string>
     <string name="config">Config</string>
+    <string name="actions">Actions</string>
+    <string name="metrics">Metrics</string>
 </resources>

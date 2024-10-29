@@ -24,7 +24,7 @@ import kotlinx.serialization.json.Json
 
 data class ConfigUiState(
     var pageTitle: String = "Players",
-    var ipField: String = "192.168.0.201:8212",
+    var ipField: String = "24.149.29.205:8212",
     var passwordField: String = "doob",
     var canSubmit: Boolean = ipField.isNotEmpty() && passwordField.isNotEmpty(),
     var isLoading: Boolean = false,
