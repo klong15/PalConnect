@@ -1,6 +1,5 @@
 package com.example.palconnect.viewmodels
 
-import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -10,13 +9,14 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.palconnect.NavBarAction
 import com.example.palconnect.NavigationManager
 import com.example.palconnect.PalConnectApp
+import com.example.palconnect.R
 import com.example.palconnect.Route
 import com.example.palconnect.models.ServerInfoModel
 import com.example.palconnect.models.ServerMetricsModel
 import com.example.palconnect.services.PalApiService
 import com.example.palconnect.services.PalDataStore
+import com.example.palconnect.services.PalUtilityService
 import io.ktor.client.call.body
-import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -46,7 +46,8 @@ data class OverviewUiState(
 class OverviewViewModel(
     private val palApiService: PalApiService,
     private val navigationManager: NavigationManager,
-    private val dataStore: PalDataStore
+    private val dataStore: PalDataStore,
+    private val utilityService: PalUtilityService
 ): ViewModel() {
 
     companion object {
@@ -56,7 +57,8 @@ class OverviewViewModel(
                 OverviewViewModel(
                     PalConnectApp.palModule.palApiService,
                     PalConnectApp.palModule.palNavigationManager,
-                    PalConnectApp.palModule.palDataStore
+                    PalConnectApp.palModule.palDataStore,
+                    PalConnectApp.palModule.palUtilityService
                 )
             }
         }
@@ -147,13 +149,13 @@ class OverviewViewModel(
             val response = palApiService.announceMessage(
                 message= message,
                 error = { response ->
-                    responseMessage = "Announcement failed to send."
+                    responseMessage = utilityService.getString(R.string.announcement_failed_to_send)
                 },
                 exception = { e ->
-                    responseMessage = "Announcement failed to send."
+                    responseMessage = utilityService.getString(R.string.announcement_failed_to_send)
                 }
             ) {
-                responseMessage = "Announcement sent successfully."
+                responseMessage = utilityService.getString(R.string.announcement_sent_successfully)
             }
 
             _uiState.update { currentState ->
@@ -165,19 +167,18 @@ class OverviewViewModel(
         }
     }
 
-    fun saveWorldClicked(context: Context) {
+    fun saveWorldClicked() {
         viewModelScope.launch {
             _uiState.update { currentState ->
                 currentState.copy(
                     saveWorldButtonEnable = false
                 )
             }
-            var toastMessage = "ERROR: World save was NOT initiated."
+            var toastMessage = utilityService.getString(R.string.error_world_save_was_not_initiated)
             val response = palApiService.saveWorld() {
-                toastMessage = "World save has been initiated."
+                toastMessage = utilityService.getString(R.string.world_save_has_been_initiated)
             }
-
-            Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show()
+            utilityService.ShowToastText(toastMessage, Toast.LENGTH_SHORT)
 
             _uiState.update { currentState ->
                 currentState.copy(

@@ -18,4 +18,8 @@
     <string name="save_world">Save World</string>
     <string name="dismiss">Dismiss</string>
     <string name="announcement">Announcement</string>
+    <string name="announcement_failed_to_send">Announcement failed to send.</string>
+    <string name="announcement_sent_successfully">Announcement sent successfully.</string>
+    <string name="error_world_save_was_not_initiated">ERROR: World save was NOT initiated.</string>
+    <string name="world_save_has_been_initiated">World save has been initiated.</string>
 </resources>

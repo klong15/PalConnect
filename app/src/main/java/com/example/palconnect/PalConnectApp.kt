@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import com.example.palconnect.services.PalApiService
 import com.example.palconnect.services.PalDataStore
+import com.example.palconnect.services.PalUtilityService
 
 class PalConnectApp: Application() {
 
@@ -31,5 +32,9 @@ class PalModule(
 
     val palDataStore: PalDataStore by lazy {
         PalDataStore(appContext)
+    }
+
+    val palUtilityService: PalUtilityService by lazy {
+        PalUtilityService(appContext)
     }
 }

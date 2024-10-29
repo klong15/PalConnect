@@ -1,6 +1,5 @@
 package com.example.palconnect.ui.overview
 
-import android.content.Context
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -124,7 +123,7 @@ fun OverviewContent(
     uiState: OverviewUiState,
     announcementResponseMessage: SharedFlow<String>? = null,
     makeAnnouncementClicked: (String) -> Unit = {},
-    saveWorldClicked: (Context) -> Unit = { context -> },
+    saveWorldClicked: () -> Unit = {},
     playersClicked: () -> Unit = {},
 ) {
     // Alert Dialog things
@@ -180,7 +179,7 @@ fun OverviewLandscape(
     modifier: Modifier = Modifier,
     uiState: OverviewUiState,
     openDialog: MutableState<Boolean>?,
-    saveWorldClicked: (Context) -> Unit = { context -> },
+    saveWorldClicked: () -> Unit = {},
     playersClicked: () -> Unit = {},
 ) {
 
@@ -226,7 +225,7 @@ fun OverviewPortrait(
     modifier: Modifier = Modifier,
     uiState: OverviewUiState,
     openDialog: MutableState<Boolean>?,
-    saveWorldClicked: (Context) -> Unit = { context -> },
+    saveWorldClicked: () -> Unit = {},
     playersClicked: () -> Unit = {},
 ) {
     Column(
@@ -262,7 +261,7 @@ fun ActionsSection(
     modifier: Modifier = Modifier,
     openDialog: MutableState<Boolean>?,
     saveWorldButtonEnable: Boolean,
-    saveWorldClicked: (Context) -> Unit = { context -> },
+    saveWorldClicked: () -> Unit = {},
     playersClicked: () -> Unit = {},
 ) {
     Column (
@@ -418,14 +417,14 @@ fun ServerInfo(
 @Composable
 fun SaveWorldButton(
     modifier: Modifier = Modifier,
-    saveWorldClicked: (Context) -> Unit,
+    saveWorldClicked: () -> Unit,
     enabled: Boolean = true,
 ) {
     var context = LocalContext.current
 
     ElevatedButton(
         modifier = modifier, onClick = {
-            saveWorldClicked(context)
+            saveWorldClicked()
         }, enabled = enabled
     ) {
         Text(stringResource(R.string.save_world))
