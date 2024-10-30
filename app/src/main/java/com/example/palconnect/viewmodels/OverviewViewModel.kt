@@ -107,7 +107,7 @@ class OverviewViewModel(
         updateJob = viewModelScope.launch {
             while (isActive) {
                 println("Fetching Metrics!")
-                palApiService.getServerMetrics() { response ->
+                palApiService.getServerMetrics { response ->
                     _uiState.update { currentState ->
                         currentState.copy(
                             metricsModel = Json.decodeFromString(response.body<String>())
@@ -124,7 +124,7 @@ class OverviewViewModel(
     }
 
     suspend fun updateServerInfo(onError: suspend () -> Unit = {}, onSuccess: suspend () -> Unit = {}) {
-        val response = palApiService.getServerInfo() { response ->
+        val response = palApiService.getServerInfo { response ->
             _uiState.update { currentState ->
                 val infoModel: ServerInfoModel = Json.decodeFromString(response.body<String>())
                 currentState.copy(
@@ -146,7 +146,7 @@ class OverviewViewModel(
                 currentState.copy( awaitingAnnounceResponse = true)
             }
             var responseMessage = ""
-            val response = palApiService.announceMessage(
+            palApiService.announceMessage(
                 message= message,
                 error = { response ->
                     responseMessage = utilityService.getString(R.string.announcement_failed_to_send)
@@ -175,10 +175,10 @@ class OverviewViewModel(
                 )
             }
             var toastMessage = utilityService.getString(R.string.error_world_save_was_not_initiated)
-            val response = palApiService.saveWorld() {
+            palApiService.saveWorld {
                 toastMessage = utilityService.getString(R.string.world_save_has_been_initiated)
             }
-            utilityService.ShowToastText(toastMessage, Toast.LENGTH_SHORT)
+            utilityService.showToastText(toastMessage, Toast.LENGTH_SHORT)
 
             _uiState.update { currentState ->
                 currentState.copy(

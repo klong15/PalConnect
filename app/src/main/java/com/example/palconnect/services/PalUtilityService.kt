@@ -5,11 +5,11 @@ import android.widget.Toast
 
 class PalUtilityService(val context: Context) {
 
-    fun ShowToastText(text: String, duration: Int) {
+    fun showToastText(text: String, duration: Int) {
         Toast.makeText(context, text, duration).show()
     }
 
-    fun ShowToastText(resId: Int , duration: Int) {
+    fun showToastText(resId: Int, duration: Int) {
         Toast.makeText(context, resId, duration).show()
     }
 

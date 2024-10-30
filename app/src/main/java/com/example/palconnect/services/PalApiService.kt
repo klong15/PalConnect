@@ -9,14 +9,12 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import kotlinx.serialization.json.Json
 
 class PalApiService {
 
     private var _client = HttpClient(CIO)
     private var _ip: String = ""
     private var _password: String = ""
-    val ignoreKeysJson = Json { ignoreUnknownKeys }
 
     suspend fun getServerInfo(
         error: suspend (HttpResponse) -> Unit = {},

@@ -1,6 +1,5 @@
 package com.example.palconnect
 
-import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -72,7 +71,6 @@ fun getInfoByRoute(
 ) {
     if(route == null) return
 
-    val a = Route.Config::class.qualifiedName
     when (route) {
         Route.Config.name -> {
             screenBackButtonCallback.value = Route.Config.backButtonCallback

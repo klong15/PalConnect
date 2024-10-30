@@ -39,7 +39,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -112,7 +111,8 @@ fun OverviewScreen(
         announcementResponseMessage = viewModel.announcementResponseMessage,
         saveWorldClicked = viewModel::saveWorldClicked,
         playersClicked = viewModel::playersClicked,
-        windowSize = windowSize
+        windowSize = windowSize,
+        modifier = modifier
     )
 }
 
@@ -376,7 +376,7 @@ fun MetricItem(
             textAlign = TextAlign.Right,
             modifier = Modifier
                 .padding(4.dp)
-                .conditional(useWeight, { weight(1f) })
+                .conditional(useWeight) { weight(1f) }
         )
     }
 }
@@ -420,8 +420,6 @@ fun SaveWorldButton(
     saveWorldClicked: () -> Unit,
     enabled: Boolean = true,
 ) {
-    var context = LocalContext.current
-
     ElevatedButton(
         modifier = modifier, onClick = {
             saveWorldClicked()
@@ -444,7 +442,7 @@ fun AnnounceDialog(
     ) {
 
         Card(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
                 .height(300.dp)
                 .padding(horizontal = 0.dp)

@@ -22,4 +22,10 @@
     <string name="announcement_sent_successfully">Announcement sent successfully.</string>
     <string name="error_world_save_was_not_initiated">ERROR: World save was NOT initiated.</string>
     <string name="world_save_has_been_initiated">World save has been initiated.</string>
+    <string name="password">Password</string>
+    <string name="ip">IP</string>
+    <string name="submit">Submit</string>
+    <string name="enter_server_info">Enter Server Info</string>
+    <string name="error_validating_server">Error validating server</string>
+    <string name="players_nav_title">Players</string>
 </resources>

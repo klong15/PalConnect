@@ -7,23 +7,22 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.palconnect.NavigationManager
 import com.example.palconnect.PalConnectApp
+import com.example.palconnect.R
 import com.example.palconnect.Route
 import com.example.palconnect.models.ServerInfoModel
 import com.example.palconnect.services.PalApiService
 import com.example.palconnect.services.PalDataStore
+import com.example.palconnect.services.PalUtilityService
 import io.ktor.client.call.body
-import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
 data class ConfigUiState(
-    var pageTitle: String = "Players",
+    var pageTitle: String = "",
     var ipField: String = "24.149.29.205:8212",
     var passwordField: String = "doob",
     var canSubmit: Boolean = ipField.isNotEmpty() && passwordField.isNotEmpty(),
@@ -35,7 +34,8 @@ data class ConfigUiState(
 class ConfigViewModel(
     private val palApiService: PalApiService,
     private val navigationManager: NavigationManager,
-    private val dataStore: PalDataStore
+    private val dataStore: PalDataStore,
+    private val utilityService: PalUtilityService
 ): ViewModel() {
 
     companion object {
@@ -45,7 +45,8 @@ class ConfigViewModel(
                 ConfigViewModel(
                     PalConnectApp.palModule.palApiService,
                     PalConnectApp.palModule.palNavigationManager,
-                    PalConnectApp.palModule.palDataStore
+                    PalConnectApp.palModule.palDataStore,
+                    PalConnectApp.palModule.palUtilityService
                 )
             }
         }
@@ -56,7 +57,14 @@ class ConfigViewModel(
 
     init {
         viewModelScope.launch {
+            // Reset these values if we every hit this screen
             dataStore.saveLoginConfig("", "")
+        }
+
+        _uiState.update { currentState ->
+            currentState.copy(
+                pageTitle = utilityService.getString(R.string.players_nav_title)
+            )
         }
     }
 
@@ -94,9 +102,9 @@ class ConfigViewModel(
 
     suspend fun getServerInfo(showError: Boolean = true, onSuccess: suspend () -> Unit = {}) {
 
-        var hasError: Boolean = true;
+        var hasError: Boolean = true
         setIsLoading(true)
-        val response = palApiService.getServerInfo() { result ->
+        palApiService.getServerInfo { result ->
             hasError = false
             _uiState.update { currentState ->
                 currentState.copy(
@@ -110,7 +118,7 @@ class ConfigViewModel(
             if(showError) {
                 _uiState.update { currentState ->
                     currentState.copy(
-                        message = "Error validating server"
+                        message = utilityService.getString(R.string.error_validating_server)
                     )
                 }
             }

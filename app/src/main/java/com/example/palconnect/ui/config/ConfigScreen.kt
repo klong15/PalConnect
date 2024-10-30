@@ -26,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -51,8 +50,6 @@ fun ConfigScreen(
     val focusRequester = remember { FocusRequester() }
 
     topBarTitle.value = stringResource(R.string.config)
-    val context = LocalContext.current
-
 
     ConfigContent(
         modifier = modifier,
@@ -100,7 +97,7 @@ fun ConfigContent(
             )
         } else {
             Text(
-                text = "Enter Server Info",
+                text = stringResource(R.string.enter_server_info),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(vertical = 16.dp)
             )
@@ -124,7 +121,7 @@ fun ConfigContent(
                 onClick = onButtonSubmit,
                 modifier = Modifier.padding(vertical = 16.dp)
             ) {
-                Text("Submit")
+                Text(stringResource(R.string.submit))
             }
             Text(text = uiState.infoModel.servername)
             Text(text = uiState.message)
@@ -143,7 +140,7 @@ fun IpTextField(
         modifier = modifier.fillMaxWidth(),
         value = text,
         placeholder = {
-            Text("IP")
+            Text(stringResource(R.string.ip))
         },
         onValueChange = onTextChange,
         textStyle = MaterialTheme.typography.titleLarge,
@@ -163,7 +160,7 @@ fun PasswordTextField(
         modifier = modifier.fillMaxWidth(),
         value = text,
         placeholder = {
-            Text("Password")
+            Text(stringResource(R.string.password))
         },
         onValueChange = onTextChange,
         visualTransformation = PasswordVisualTransformation(),
