@@ -23,8 +23,8 @@ import kotlinx.serialization.json.Json
 
 data class ConfigUiState(
     var pageTitle: String = "",
-    var ipField: String = "24.149.29.205:8212",
-    var passwordField: String = "doob",
+    var ipField: String = "",
+    var passwordField: String = "",
     var canSubmit: Boolean = ipField.isNotEmpty() && passwordField.isNotEmpty(),
     var isLoading: Boolean = false,
     var infoModel: ServerInfoModel = ServerInfoModel(),
