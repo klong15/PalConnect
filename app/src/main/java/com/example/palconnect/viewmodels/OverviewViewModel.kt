@@ -41,6 +41,7 @@ data class OverviewUiState(
     var awaitingAnnounceResponse: Boolean = false,
     var saveWorldButtonEnable: Boolean = true,
     var isInitialLoading: Boolean = true,
+    var metricsError: Boolean = false
 )
 
 class OverviewViewModel(
@@ -106,15 +107,24 @@ class OverviewViewModel(
 
         updateJob = viewModelScope.launch {
             while (isActive) {
+                delay(METRICS_UPDATE_CADENCE)
                 println("Fetching Metrics!")
-                palApiService.getServerMetrics { response ->
+                val response = palApiService.getServerMetrics { response ->
                     _uiState.update { currentState ->
                         currentState.copy(
-                            metricsModel = Json.decodeFromString(response.body<String>())
+                            metricsModel = Json.decodeFromString(response.body<String>()),
+                            metricsError = false
                         )
                     }
                 }
-                delay(METRICS_UPDATE_CADENCE)
+
+                if(response == null || response.status != HttpStatusCode.OK) {
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            metricsError = true
+                        )
+                    }
+                }
             }
         }
     }
