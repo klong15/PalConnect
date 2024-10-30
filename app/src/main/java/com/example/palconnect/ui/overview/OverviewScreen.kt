@@ -393,7 +393,7 @@ fun ServerInfo(
     ){
         Column(
             modifier = modifier
-            .padding(16.dp)
+                .padding(16.dp)
         ) {
             Image(
                 painter = painterResource(R.drawable.server_image),
