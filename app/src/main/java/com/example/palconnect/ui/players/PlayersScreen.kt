@@ -196,22 +196,32 @@ fun PlayerCardContent(
             }
 
             if (expanded) {
-                Column {
-                    Text(
-                        text = ("Level: ${player.level}"),
-                        modifier = Modifier.padding(8.dp)
-                    )
-                    Text(
-                        text = ("Ping: ${player.ping}"),
-                        modifier = Modifier.padding(8.dp)
-                    )
-                    Text(
-                        text = ("IP: ${player.ip}"),
-                        modifier = Modifier.padding(8.dp)
-                    )
-                }
+                PlayerExpandedInfo(player = player)
             }
         }
+    }
+}
+
+@Composable
+fun PlayerExpandedInfo(
+    player: Player,
+    modifier: Modifier = Modifier
+) {
+    Column (
+        modifier = modifier
+    ){
+        Text(
+            text = ("Level: ${player.level}"),
+            modifier = Modifier.padding(8.dp)
+        )
+        Text(
+            text = ("Ping: ${player.ping}"),
+            modifier = Modifier.padding(8.dp)
+        )
+        Text(
+            text = ("IP: ${player.ip}"),
+            modifier = Modifier.padding(8.dp)
+        )
     }
 }
 
