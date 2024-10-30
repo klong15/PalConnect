@@ -63,7 +63,7 @@ class ConfigViewModel(
 
         _uiState.update { currentState ->
             currentState.copy(
-                pageTitle = utilityService.getString(R.string.players_nav_title)
+                pageTitle = utilityService.getString(R.string.config_nav_title)
             )
         }
     }

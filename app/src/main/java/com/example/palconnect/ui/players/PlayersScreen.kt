@@ -96,16 +96,6 @@ fun PlayersContent(
     refresh: () -> Unit = {},
     uiState: PlayersUiState = PlayersUiState()
 ) {
-//    if(uiState.isLoadingData) {
-//        Box (
-//            modifier = Modifier.fillMaxSize(),
-//            contentAlignment = Alignment.Center
-//        ){
-//            CircularProgressIndicator(
-//                modifier = Modifier.width(64.dp)
-//            )
-//        }
-//    } else
         if(uiState.errorStrId > 0) {
         Box (
             modifier = Modifier.fillMaxSize(),
@@ -134,13 +124,6 @@ fun PlayersContent(
                     )
                 }
             }
-
-//            if(uiState.isLoadingData) {
-//                CircularProgressIndicator(
-//                    modifier = Modifier.width(64.dp).align(Alignment.Center),
-//                    color = Color.Green
-//                )
-//            }
 
             PullRefreshIndicator(refreshing, refreshState, Modifier.align(Alignment.TopCenter))
         }
@@ -172,7 +155,8 @@ fun PlayerCardContent(
 
     val expanded = player.playerId == selectedPlayer.value
     Surface (
-        color = MaterialTheme.colorScheme.primary,
+        modifier = modifier,
+        color = MaterialTheme.colorScheme.primaryContainer,
         onClick = { selectedPlayer.value = if(selectedPlayer.value != player.playerId) player.playerId else ""}
     ){
         Column(
@@ -188,7 +172,6 @@ fun PlayerCardContent(
             ) {
             Row(
                 modifier = Modifier
-//                .weight(1f)
                     .padding(12.dp),
                 horizontalArrangement = Arrangement.End
             ) {
@@ -237,7 +220,7 @@ fun PlayerCardContent(
 fun PlayerCardPreview() {
     PlayerCard(
         Player(
-            name = "Kyledoober"
+            name = "Kyle L"
         )
     )
 }

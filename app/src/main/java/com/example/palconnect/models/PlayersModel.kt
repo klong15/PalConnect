@@ -2,11 +2,10 @@ package com.example.palconnect.models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonNames
 
 @Serializable
 data class PlayersModel(
-    val players: Array<Player> = PlayersModel.createDummyData(0)
+    val players: Array<Player> = createDummyData(0)
 ) {
     companion object {
         fun createDummyData(size: Int): Array<Player> {

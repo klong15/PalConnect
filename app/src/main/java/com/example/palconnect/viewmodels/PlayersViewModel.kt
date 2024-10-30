@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.palconnect.NavigationManager
 import com.example.palconnect.PalConnectApp
 import com.example.palconnect.R
 import com.example.palconnect.models.PlayersModel
@@ -32,7 +31,6 @@ data class PlayersUiState(
 
 class PlayersViewModel(
     private val palApiService: PalApiService,
-    private val navigationManager: NavigationManager
 ): ViewModel() {
 
     companion object {
@@ -41,7 +39,6 @@ class PlayersViewModel(
             initializer {
                 PlayersViewModel(
                     PalConnectApp.palModule.palApiService,
-                    PalConnectApp.palModule.palNavigationManager
                 )
             }
         }
@@ -56,8 +53,6 @@ class PlayersViewModel(
         if(_uiState.value.playersModel.players.isEmpty()) {
             refreshJob = refreshPlayers()
         }
-
-        var msg = R.string.error_load_players
     }
 
     fun onStop() {
@@ -78,7 +73,7 @@ class PlayersViewModel(
             delay(1500)
 
             var players: PlayersModel? = null
-            val response = palApiService.getPlayers() { response ->
+            val response = palApiService.getPlayers { response ->
                 var realPlayers: PlayersModel = Json.decodeFromString(response.body<String>())
                 players = PlayersModel(
                     players = realPlayers.players + PlayersModel.createDummyData(50)

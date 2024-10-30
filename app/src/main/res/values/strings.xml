@@ -3,7 +3,7 @@
     <string name="show_less">Show Less</string>
     <string name="show_more">Show More</string>
     <string name="error_load_players">Error: Couldn\'t load players</string>
-    <string name="config">Config</string>
+    <string name="config_nav_title">Config</string>
     <string name="actions">Actions</string>
     <string name="metrics">Live Metrics</string>
     <string name="dynamic_colors_on_toast">Dynamic Colors are on!</string>

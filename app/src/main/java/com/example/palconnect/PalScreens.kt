@@ -1,7 +1,6 @@
 package com.example.palconnect
 
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.serialization.Serializable
@@ -40,9 +39,8 @@ sealed interface Route {
     }
 }
 
-var Route.name: String?
+val Route.name: String?
     get() = this::class.qualifiedName
-    private set(value) { }
 
 class NavigationManager {
     private val _route = MutableSharedFlow<Route>(

@@ -49,7 +49,7 @@ fun ConfigScreen(
     val uiState by viewModel.uiState.collectAsState()
     val focusRequester = remember { FocusRequester() }
 
-    topBarTitle.value = stringResource(R.string.config)
+    topBarTitle.value = uiState.pageTitle
 
     ConfigContent(
         modifier = modifier,
