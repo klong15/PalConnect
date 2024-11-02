@@ -6,9 +6,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChangeCircle
@@ -46,6 +48,7 @@ import com.example.palconnect.ui.theme.PalMyTheme
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.getValue
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -64,12 +67,12 @@ enum class NavBarAction() {
 }
 
 fun getInfoByRoute(
-    route:String?,
+    route: String?,
     showBackIcon: MutableState<Boolean>,
     screenBackButtonCallback: MutableState<(() -> Unit)?>,
     screenType: MutableState<Route>
 ) {
-    if(route == null) return
+    if (route == null) return
 
     when (route) {
         Route.Config.name -> {
@@ -77,11 +80,13 @@ fun getInfoByRoute(
             showBackIcon.value = Route.Config.showBackButtonInNavBar
             screenType.value = Route.Config
         }
+
         Route.Overview.name -> {
             screenBackButtonCallback.value = Route.Overview.backButtonCallback
             showBackIcon.value = Route.Overview.showBackButtonInNavBar
             screenType.value = Route.Overview
         }
+
         Route.Players.name -> {
             screenBackButtonCallback.value = Route.Players.backButtonCallback
             showBackIcon.value = Route.Players.showBackButtonInNavBar
@@ -96,7 +101,7 @@ fun NavigatorLaunchedEffect(
 ) {
     LaunchedEffect("NavigationEvents") {
         PalConnectApp.palModule.palNavigationManager.route.collect { screen ->
-            if(screen == Route.PopBackStack) {
+            if (screen == Route.PopBackStack) {
                 navController.popBackStack()
             } else {
                 navController.navigate(screen)
@@ -119,11 +124,13 @@ fun PalApp(
         val navController = rememberNavController()
         var topBarTitle = remember { mutableStateOf("") }
         var showBackIcon = remember { mutableStateOf(true) }
-        var curScreenBackButton = remember { mutableStateOf<(()->Unit)?>(null) }
+        var curScreenBackButton = remember { mutableStateOf<(() -> Unit)?>(null) }
         var screenType = remember { mutableStateOf<Route>(Route.Config) }
-        var actionClickFlow = remember { MutableSharedFlow<NavBarAction>(
-            extraBufferCapacity = 1
-        ) }
+        var actionClickFlow = remember {
+            MutableSharedFlow<NavBarAction>(
+                extraBufferCapacity = 1
+            )
+        }
         LaunchedEffect(navController) {
             navController.currentBackStackEntryFlow.collect { backStackEntry ->
                 getInfoByRoute(backStackEntry.destination.route, showBackIcon, curScreenBackButton, screenType)
@@ -187,12 +194,12 @@ fun PalNavHost(
     modifier: Modifier = Modifier
 ) {
 
-    NavHost (
+    NavHost(
         navController = navController,
         startDestination = Route.Overview,
         modifier = modifier
     ) {
-        composable<Route.Config>{
+        composable<Route.Config> {
             BackHandler(true) { Route.Config.backButtonCallback }
             ConfigScreen(
                 topBarTitle = topBarTitle
@@ -219,10 +226,11 @@ fun NavBarActions(
     actionsFlow: MutableSharedFlow<NavBarAction>,
     dynamicColor: Boolean
 ) {
-    val composableScope =  rememberCoroutineScope()
+    val composableScope = rememberCoroutineScope()
     val context = LocalContext.current
+
     Icon(
-        imageVector = if(dynamicColor) Icons.Filled.ChangeHistory else Icons.Filled.ChangeCircle,
+        imageVector = if (dynamicColor) Icons.Filled.ChangeHistory else Icons.Filled.ChangeCircle,
         contentDescription = "Localized description",
         modifier = Modifier
             .clickable(
@@ -231,19 +239,24 @@ fun NavBarActions(
                     composableScope.launch {
                         PalConnectApp.palModule.palDataStore.saveDynamicColorPreference(!dynamicColor)
                     }
-                    val msgId = if (!dynamicColor) R.string.dynamic_colors_on_toast else R.string.dynamic_colors_off_toast
+                    val msgId =
+                        if (!dynamicColor) R.string.dynamic_colors_on_toast else R.string.dynamic_colors_off_toast
                     Toast
                         .makeText(
                             context,
                             context.getString(msgId),
                             Toast.LENGTH_SHORT
-                        ).show()
+                        )
+                        .show()
                 }
             )
             .padding(horizontal = 8.dp)
     )
-    
-    if(route == Route.Overview){
+
+    AnimatedVisibility(
+        visible = route == Route.Overview,
+        modifier = Modifier
+    ) {
         Icon(
             imageVector = Icons.Filled.Dns,
             contentDescription = "Localized description",
@@ -257,6 +270,7 @@ fun NavBarActions(
                 .padding(horizontal = 8.dp)
         )
     }
+
 }
 
 
