@@ -146,21 +146,22 @@ fun PalApp(
                         Text(text = topBarTitle.value)
                     },
                     navigationIcon = {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Localized description",
-                            modifier = Modifier
-                                .alpha(if (showBackIcon.value) 1f else 0f)
-                                .clickable(
-                                    enabled = showBackIcon.value,
-                                    onClick = {
-                                        curScreenBackButton.value?.invoke()
-                                            ?: navController.popBackStack()
-                                    }
-                                )
-                                .padding(4.dp)
-
-                        )
+                        AnimatedVisibility(
+                            visible = showBackIcon.value,
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Localized description",
+                                modifier = Modifier
+                                    .clickable(
+                                        onClick = {
+                                            curScreenBackButton.value?.invoke()
+                                                ?: navController.popBackStack()
+                                        }
+                                    )
+                                    .padding(4.dp)
+                            )
+                        }
                     },
                     actions = {
                         NavBarActions(
