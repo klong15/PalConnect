@@ -204,12 +204,20 @@ class OverviewViewModel(
 
     fun navBarActionsClicked(type: NavBarAction) {
         println("Action bar type $type clicked!")
-        _uiState.update { currentState ->
-            currentState.copy(
-                isInitialLoading = true
-            )
+        when (type) {
+            NavBarAction.Settings -> {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        isInitialLoading = true
+                    )
+                }
+
+                navigationManager.navigateTo(Route.Config)
+            }
+            NavBarAction.Login -> {
+                navigationManager.navigateTo(Route.Login)
+            }
         }
 
-        navigationManager.navigateTo(Route.Config)
     }
 }

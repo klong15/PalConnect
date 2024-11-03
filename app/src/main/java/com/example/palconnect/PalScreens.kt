@@ -32,6 +32,13 @@ sealed interface Route {
     }
 
     @Serializable
+    data object Login : Route {
+        override val showBackButtonInNavBar: Boolean = true
+        override val backButtonCallback: (() -> Unit)?
+            get() = null
+    }
+
+    @Serializable
     data object PopBackStack: Route {
         override val showBackButtonInNavBar: Boolean = false
         override val backButtonCallback: (() -> Unit)?

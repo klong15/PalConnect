@@ -16,6 +16,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChangeCircle
 import androidx.compose.material.icons.filled.ChangeHistory
 import androidx.compose.material.icons.filled.Dns
+import androidx.compose.material.icons.filled.Password
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -49,6 +50,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
+import com.example.palconnect.ui.LoginScreen
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -63,7 +65,8 @@ class MainActivity : ComponentActivity() {
 }
 
 enum class NavBarAction() {
-    Settings
+    Settings,
+    Login
 }
 
 fun getInfoByRoute(
@@ -91,6 +94,12 @@ fun getInfoByRoute(
             screenBackButtonCallback.value = Route.Players.backButtonCallback
             showBackIcon.value = Route.Players.showBackButtonInNavBar
             screenType.value = Route.Players
+        }
+
+        Route.Login.name -> {
+            screenBackButtonCallback.value = Route.Login.backButtonCallback
+            showBackIcon.value = Route.Login.showBackButtonInNavBar
+            screenType.value = Route.Login
         }
     }
 }
@@ -218,6 +227,12 @@ fun PalNavHost(
                 topBarTitle = topBarTitle
             )
         }
+        composable<Route.Login> {
+            LoginScreen(
+                topBarTitle = topBarTitle,
+                windowSize = windowSize
+            )
+        }
     }
 }
 
@@ -266,6 +281,24 @@ fun NavBarActions(
                     enabled = true,
                     onClick = {
                         actionsFlow.tryEmit(NavBarAction.Settings)
+                    }
+                )
+                .padding(horizontal = 8.dp)
+        )
+    }
+
+    AnimatedVisibility(
+        visible = route == Route.Overview,
+        modifier = Modifier
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Password,
+            contentDescription = "Localized description",
+            modifier = Modifier
+                .clickable(
+                    enabled = true,
+                    onClick = {
+                        actionsFlow.tryEmit(NavBarAction.Login)
                     }
                 )
                 .padding(horizontal = 8.dp)
